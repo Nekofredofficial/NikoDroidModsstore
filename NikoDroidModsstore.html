@@ -1,0 +1,3408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NikoDroidModsstore</title>
+    <!-- Tailwind CSS for modern responsive utilities -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for classic functional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- JSZip for client-side APK extraction & compilation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f5fa;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1edf7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3e1f5c;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #562b80;
+        }
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #fcfbfe;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Star rating styles */
+        .star-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #d1d5db;
+            transition: color 0.2s;
+        }
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #fbbf24;
+        }
+        .star-rating label:hover {
+            transform: scale(1.1);
+        }
+        .star-display {
+            color: #fbbf24;
+        }
+        .star-display .empty {
+            color: #d1d5db;
+        }
+        /* Review card animations */
+        .review-card {
+            transition: all 0.3s ease;
+        }
+        .review-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        /* Animated pulse for hero section */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        /* Notification bell animation */
+        @keyframes bell-ring {
+            0%, 100% { transform: rotate(0); }
+            10%, 30% { transform: rotate(15deg); }
+            20%, 40% { transform: rotate(-15deg); }
+        }
+        .bell-ring {
+            animation: bell-ring 2s ease-in-out infinite;
+        }
+        /* Favorite button animation */
+        .favorite-btn {
+            transition: all 0.3s ease;
+        }
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+        .favorite-btn.active {
+            color: #f43f5e;
+        }
+        /* Notification popup */
+        .notification-popup {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 100;
+            max-width: 350px;
+            width: 100%;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+        .notification-popup.show {
+            transform: translateX(0);
+        }
+        /* Version update badge */
+        .version-badge {
+            background: #3b82f6;
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .new-version-badge {
+            background: #22c55e;
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col selection:bg-purple-600 selection:text-white">
+
+    <!-- Header: APKMirror layout inspired with White/Light Body and rich Dark Purple Navigation bars -->
+    <header class="bg-[#24133b] text-white border-b border-[#3b1e5f] sticky top-0 z-40 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+            <!-- Left: Toggle Sidebar and Logo -->
+            <div class="flex items-center gap-3">
+                <button id="menu-btn" class="text-purple-300 hover:text-white p-2 rounded-lg transition-colors focus:outline-none" aria-label="Menu">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <a href="#" onclick="showPage('home')" class="flex items-center gap-2">
+                    <img src="https://plain-eeur-prod-public.komododecks.com/202606/30/N07po0lkZ0GhnkPLoE2d/image.png" 
+                         alt="NikoDroidModsstore Logo" 
+                         class="h-10 md:h-12 w-auto object-contain"
+                         onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
+                    <span id="fallback-logo" class="hidden font-extrabold text-xl tracking-tight text-purple-400">NikoDroid<span class="text-white">Mods</span></span>
+                </a>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
+                <button onclick="showPage('home')" class="nav-link text-white border-b-2 border-white transition-colors">Home Store</button>
+                <button onclick="showPage('apps')" class="nav-link text-purple-200 hover:text-white transition-colors">All Apps</button>
+                <button onclick="showPage('favorites')" class="nav-link text-purple-200 hover:text-white transition-colors">My Favorites</button>
+                <button onclick="showPage('about')" class="nav-link text-purple-200 hover:text-white transition-colors">About & ToS</button>
+                <button id="admin-nav-btn" onclick="showPage('admin')" class="nav-link text-amber-300 hover:text-amber-200 hidden items-center gap-1.5 transition-colors">
+                    <i class="fa-solid fa-shield-halved"></i> Admin Console
+                </button>
+            </nav>
+
+            <!-- Right: Action Buttons, User Status & Search -->
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="relative hidden sm:block w-40 md:w-56">
+                    <input type="text" id="search-input" placeholder="Search APKs..." 
+                           class="w-full bg-[#160a24] text-xs text-gray-200 pl-8 pr-3 py-2 rounded-full border border-[#3b1e5f] focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-purple-400">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-purple-400 text-xs"></i>
+                </div>
+                
+                <!-- Notifications -->
+                <div class="relative">
+                    <button id="notifications-btn" onclick="toggleNotifications()" class="text-purple-300 hover:text-white p-2 rounded-lg transition-colors relative">
+                        <i class="fa-solid fa-bell text-lg bell-ring"></i>
+                        <span id="notification-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+                    </button>
+                    
+                    <!-- Notifications Dropdown -->
+                    <div id="notifications-dropdown" class="absolute right-0 top-12 w-80 bg-white rounded-xl shadow-2xl border border-purple-100 hidden overflow-hidden z-50">
+                        <div class="bg-[#24133b] text-white px-4 py-3 flex items-center justify-between">
+                            <span class="text-sm font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-bell text-purple-300"></i> Notifications
+                            </span>
+                            <button onclick="markAllNotificationsRead()" class="text-[10px] text-purple-300 hover:text-white">Mark all read</button>
+                        </div>
+                        <div id="notifications-list" class="max-h-[400px] overflow-y-auto custom-scrollbar p-2 space-y-1">
+                            <div class="text-center py-8 text-xs text-gray-400">No notifications yet</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Authentication Status -->
+                <button id="auth-trigger-btn" onclick="openAuthModal()" class="bg-[#3e1f5c] hover:bg-[#4d2673] text-purple-100 text-xs font-semibold px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 border border-purple-500/20">
+                    <i class="fa-solid fa-user-circle"></i> <span id="auth-btn-text">Sign In</span>
+                </button>
+
+                <!-- Connection status visual indicator -->
+                <button id="user-status-btn" class="text-purple-300 hover:text-white p-2 rounded-lg" title="Connection Status">
+                    <i class="fa-solid fa-cloud text-lg animate-pulse text-yellow-500"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- SIDEBAR FOR MENU -->
+    <div id="sidebar" class="fixed inset-0 z-50 bg-[#06020a]/80 backdrop-blur-sm hidden">
+        <div class="bg-[#150a24] border-r border-[#3b1e5f] w-72 h-full p-6 space-y-6 flex flex-col justify-between transform -translate-x-full transition-transform duration-300" id="sidebar-content">
+            <div class="space-y-6">
+                <!-- Top Header -->
+                <div class="flex items-center justify-between">
+                    <img src="https://plain-eeur-prod-public.komododecks.com/202606/30/N07po0lkZ0GhnkPLoE2d/image.png" alt="NikoDroid Logo" class="h-8">
+                    <button id="close-sidebar-btn" class="text-purple-300 hover:text-white">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="showPage('home'); closeSidebar();" class="w-full flex items-center gap-3 p-3 text-purple-300 hover:bg-[#25133c] hover:text-white rounded-xl text-sm font-semibold transition-all text-left">
+                        <i class="fa-solid fa-house"></i> Home Feed
+                    </button>
+                    <button onclick="showPage('apps'); closeSidebar();" class="w-full flex items-center gap-3 p-3 text-purple-300 hover:bg-[#25133c] hover:text-white rounded-xl text-sm font-semibold transition-all text-left">
+                        <i class="fa-solid fa-cubes"></i> All Apps
+                    </button>
+                    <button onclick="showPage('favorites'); closeSidebar();" class="w-full flex items-center gap-3 p-3 text-purple-300 hover:bg-[#25133c] hover:text-white rounded-xl text-sm font-semibold transition-all text-left">
+                        <i class="fa-solid fa-heart"></i> My Favorites
+                    </button>
+                    <button onclick="showPage('about'); closeSidebar();" class="w-full flex items-center gap-3 p-3 text-purple-300 hover:bg-[#25133c] hover:text-white rounded-xl text-sm font-semibold transition-all text-left">
+                        <i class="fa-solid fa-info-circle"></i> About & Rules (ToS)
+                    </button>
+                    <button id="sidebar-admin-btn" onclick="showPage('admin'); closeSidebar();" class="w-full hidden items-center gap-3 p-3 text-amber-300 hover:bg-amber-950/20 hover:text-amber-200 rounded-xl text-sm font-semibold transition-all text-left">
+                        <i class="fa-solid fa-shield-halved"></i> Admin Console
+                    </button>
+                    
+                    <hr class="border-[#2c144c] my-4">
+
+                    <button onclick="openUploadModal('modded'); closeSidebar();" class="w-full flex items-center gap-3 p-3 text-purple-300 hover:bg-[#25133c] hover:text-white rounded-xl text-sm font-medium transition-all text-left">
+                        <i class="fa-solid fa-circle-plus text-purple-500"></i> Upload Modded APK
+                    </button>
+                    <button onclick="openUploadModal('original'); closeSidebar();" class="w-full flex items-center gap-3 p-3 text-purple-300 hover:bg-[#25133c] hover:text-white rounded-xl text-sm font-medium transition-all text-left">
+                        <i class="fa-solid fa-box text-purple-500"></i> Upload Original APK
+                    </button>
+                </div>
+            </div>
+
+            <div class="border-t border-[#3b1e5f] pt-4 text-xs text-purple-400/50">
+                <p>NikoDroidModsstore v1.4.0</p>
+                <p class="mt-1">Secure white-theme sandbox environment with automated community verification.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+        
+        <!-- ================= HOME PAGE STOREFRONT ================= -->
+        <div id="page-home" class="page-view space-y-6">
+            <!-- Search bar for mobile devices only -->
+            <div class="sm:hidden mb-4 relative">
+                <input type="text" id="search-input-mobile" placeholder="Search APKs..." 
+                       class="w-full bg-white text-sm text-gray-800 pl-10 pr-4 py-3 rounded-xl border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-purple-400 shadow-sm">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-purple-400"></i>
+            </div>
+
+            <!-- Hero Welcome Intro Block with App Store branding -->
+            <div class="bg-gradient-to-br from-[#24133b] to-[#45236b] text-white rounded-3xl p-6 md:p-10 shadow-xl border border-purple-500/20 relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="bg-[#e49aff]/20 text-[#edd2ff] border border-purple-400/30 text-[10px] uppercase font-extrabold tracking-wider px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1.5 animate-pulse"></i> Custom Android Client Sandbox
+                    </span>
+                    <h1 class="text-2xl md:text-4xl font-extrabold tracking-tight leading-tight">
+                        NikoDroid<span class="text-purple-400">Mods</span>store
+                    </h1>
+                    <p class="text-xs md:text-sm text-purple-200 leading-relaxed font-medium">
+                        Welcome to NikoDroidModsstore! A next-generation Android modding app directory built exclusively for developers and security purists. We empower users to host, explore, and download cleanly packaged mobile tools, games, and applications under real-time community surveillance.
+                    </p>
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <button onclick="openUploadModal('modded')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-purple-900/30">
+                            <i class="fa-solid fa-circle-plus"></i> Upload Modded
+                        </button>
+                        <button onclick="openUploadModal('original')" class="bg-white/10 hover:bg-white/20 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-1.5 border border-white/10">
+                            <i class="fa-solid fa-box"></i> Upload Original
+                        </button>
+                    </div>
+                </div>
+                <!-- Abstract branding glow -->
+                <div class="absolute -right-16 -bottom-16 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            </div>
+
+            <!-- Applanet-Style Welcome Banner -->
+            <div class="bg-gradient-to-r from-indigo-900 via-purple-900 to-pink-900 rounded-3xl p-8 md:p-12 shadow-2xl border border-purple-500/30 relative overflow-hidden">
+                <!-- Decorative elements -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl"></div>
+                
+                <div class="relative z-10 max-w-4xl mx-auto text-center space-y-6">
+                    <!-- Applanet tribute badge -->
+                    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs text-white/90 font-bold tracking-wider">
+                        <i class="fa-solid fa-star text-yellow-400 animate-pulse"></i>
+                        <span>THE NEXT APPLANET</span>
+                        <i class="fa-solid fa-star text-yellow-400 animate-pulse"></i>
+                    </div>
+                    
+                    <!-- Main tagline -->
+                    <h2 class="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300">
+                            Premium Modded Apps
+                        </span>
+                        <br>
+                        <span class="text-white">Without the Bloatware</span>
+                    </h2>
+                    
+                    <!-- Description -->
+                    <div class="max-w-2xl mx-auto space-y-4">
+                        <p class="text-sm md:text-base text-purple-200/90 leading-relaxed">
+                            NikoDroidModsstore isn't just another mod store — it's the <strong class="text-yellow-300">spiritual successor to Applanet</strong>, built for the modern Android enthusiast. We curate and deliver <strong class="text-pink-300">premium modded applications</strong> that actually work, with <strong class="text-green-300">no ads, no trackers, and no fake download links</strong>.
+                        </p>
+                        <p class="text-xs md:text-sm text-purple-300/80 leading-relaxed">
+                            <i class="fa-solid fa-check-circle text-green-400 mr-1"></i> 
+                            Every mod is community-tested and verified before release.
+                            <i class="fa-solid fa-check-circle text-green-400 ml-3 mr-1"></i>
+                            Zero forced redirects or deceptive download buttons.
+                        </p>
+                    </div>
+                    
+                    <!-- Feature badges -->
+                    <div class="flex flex-wrap justify-center gap-3 pt-2">
+                        <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 text-[10px] text-white/90">
+                            <i class="fa-solid fa-gem text-yellow-400"></i> Premium Mods
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 text-[10px] text-white/90">
+                            <i class="fa-solid fa-shield-halved text-green-400"></i> 100% Safe
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 text-[10px] text-white/90">
+                            <i class="fa-solid fa-bolt text-yellow-400"></i> Fast Downloads
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 text-[10px] text-white/90">
+                            <i class="fa-solid fa-users text-purple-400"></i> Community Driven
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 text-[10px] text-white/90">
+                            <i class="fa-solid fa-bell text-amber-400"></i> Real-time Updates
+                        </span>
+                    </div>
+                    
+                    <!-- Stats counter -->
+                    <div class="grid grid-cols-3 gap-4 max-w-md mx-auto pt-4 border-t border-white/10">
+                        <div class="text-center">
+                            <div class="text-2xl font-black text-white" id="mod-count-display">0</div>
+                            <div class="text-[10px] text-purple-300/80 uppercase tracking-wider">Modded Apps</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-black text-white" id="user-count-display">0</div>
+                            <div class="text-[10px] text-purple-300/80 uppercase tracking-wider">Active Users</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-black text-white" id="review-count-display">0</div>
+                            <div class="text-[10px] text-purple-300/80 uppercase tracking-wider">Reviews</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Explanatory Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white border border-purple-100 rounded-2xl p-5 space-y-2 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold">
+                        <i class="fa-solid fa-mobile-screen"></i>
+                    </div>
+                    <h3 class="font-extrabold text-sm text-gray-900">What is NikoDroid?</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                        An advanced Android Modding App Store (similar to HappyMod, APKMirror, or Mobilism) serving verified modifications and official release packages directly to your browser with no aggressive redirections or download barriers.
+                    </p>
+                </div>
+                
+                <div class="bg-white border border-purple-100 rounded-2xl p-5 space-y-2 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold">
+                        <i class="fa-solid fa-microscope"></i>
+                    </div>
+                    <h3 class="font-extrabold text-sm text-gray-900">Client-Side Parser</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                        Our dynamic system scans uploaded packages' binary XML resources directly on your device. It retrieves the actual package identifiers and extracts the true application icon to avoid spoofing.
+                    </p>
+                </div>
+
+                <div class="bg-white border border-purple-100 rounded-2xl p-5 space-y-2 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="font-extrabold text-sm text-gray-900">5-Flag Security Lock</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                        If an app gets flagged 5 times, it is placed in "Temporary Closed for Checking". This empowers users, admins, and the owner Nekofred to review files using tools like Virustotal.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Home double columns (Modded and Original) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Modded Column -->
+                <div class="bg-white rounded-2xl border border-purple-100 p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-purple-50 pb-3">
+                        <h2 class="text-base font-extrabold text-gray-900 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-pulse"></span> Modded APK Packages
+                        </h2>
+                        <span class="text-[10px] bg-purple-50 text-purple-600 font-bold px-2.5 py-0.5 rounded-full">Community Mods</span>
+                    </div>
+                    <div class="space-y-3" id="modded-list">
+                        <!-- Dynamic list populated by JS -->
+                        <div class="text-center py-8 text-gray-400 text-xs">No modded APK files loaded.</div>
+                    </div>
+                </div>
+
+                <!-- Original Column -->
+                <div class="bg-white rounded-2xl border border-purple-100 p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-purple-50 pb-3">
+                        <h2 class="text-base font-extrabold text-gray-900 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#24133b]"></span> Official Unmodified APKs
+                        </h2>
+                        <span class="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-2.5 py-0.5 rounded-full">Verified Originals</span>
+                    </div>
+                    <div class="space-y-3" id="original-list">
+                        <!-- Dynamic list populated by JS -->
+                        <div class="text-center py-8 text-gray-400 text-xs">No official unmodified APK files loaded.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ALL APPS DIRECTORY PAGE ================= -->
+        <div id="page-apps" class="page-view hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-purple-100 p-6 md:p-8 shadow-sm max-w-6xl mx-auto space-y-6">
+                <!-- Header -->
+                <div class="border-b border-purple-100 pb-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+                            <i class="fa-solid fa-cubes text-purple-600"></i> Apps Catalog
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1">Explore all community-submitted modded hacks and official unmodified packages.</p>
+                    </div>
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <div class="relative flex-grow md:flex-grow-0">
+                            <input type="text" id="catalog-search-input" placeholder="Filter catalog..." 
+                                   class="w-full md:w-64 bg-gray-50 text-xs text-gray-800 pl-8 pr-3 py-2 rounded-xl border border-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-purple-400">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-purple-400 text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Filtering Chips (HappyMod Style) -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-3 -mx-2 px-2 scrollbar-none" id="category-chips-container">
+                    <button onclick="filterCatalogCategory('all')" id="chip-all" class="category-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-bold bg-[#24133b] text-white border border-transparent transition-all">
+                        All Categories
+                    </button>
+                    <button onclick="filterCatalogCategory('games')" id="chip-games" class="category-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-purple-50/50 hover:border-purple-200 transition-all">
+                        🎮 Games
+                    </button>
+                    <button onclick="filterCatalogCategory('tools')" id="chip-tools" class="category-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-purple-50/50 hover:border-purple-200 transition-all">
+                        🔧 Tools
+                    </button>
+                    <button onclick="filterCatalogCategory('social')" id="chip-social" class="category-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-purple-50/50 hover:border-purple-200 transition-all">
+                        💬 Social & Chat
+                    </button>
+                    <button onclick="filterCatalogCategory('entertainment')" id="chip-entertainment" class="category-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-purple-50/50 hover:border-purple-200 transition-all">
+                        🎬 Entertainment
+                    </button>
+                </div>
+
+                <!-- Mobile Navigation Tabs (Toggle side-by-side view on smaller screens) -->
+                <div class="flex lg:hidden border-b border-purple-100 mb-2">
+                    <button onclick="switchCatalogMobileTab('modded')" id="tab-catalog-modded" class="flex-1 py-3 text-xs font-extrabold border-b-2 border-purple-600 text-purple-600 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-sm"></i> Modded Sections
+                    </button>
+                    <button onclick="switchCatalogMobileTab('official')" id="tab-catalog-official" class="flex-1 py-3 text-xs font-extrabold border-b-2 border-transparent text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved text-sm"></i> Official Unmodified
+                    </button>
+                </div>
+
+                <!-- Double Column Split Content with Independent Scroll containers -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Modded Side Column -->
+                    <div id="catalog-modded-column" class="space-y-4">
+                        <div class="hidden lg:flex items-center justify-between border-b border-purple-100 pb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-sm">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </div>
+                                <h3 class="font-extrabold text-sm text-gray-900 uppercase tracking-wide">Modded Releases</h3>
+                            </div>
+                            <span id="catalog-modded-count" class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">0 Items</span>
+                        </div>
+                        
+                        <!-- Scrollable list wrapper -->
+                        <div class="max-h-[500px] overflow-y-auto pr-2 space-y-3 custom-scrollbar" id="catalog-modded-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Official/Original Side Column -->
+                    <div id="catalog-official-column" class="space-y-4 hidden lg:block">
+                        <div class="hidden lg:flex items-center justify-between border-b border-purple-100 pb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-sm">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <h3 class="font-extrabold text-sm text-gray-900 uppercase tracking-wide">Official Unmodified</h3>
+                            </div>
+                            <span id="catalog-official-count" class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">0 Items</span>
+                        </div>
+
+                        <!-- Scrollable list wrapper -->
+                        <div class="max-h-[500px] overflow-y-auto pr-2 space-y-3 custom-scrollbar" id="catalog-official-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= FAVORITES PAGE ================= -->
+        <div id="page-favorites" class="page-view hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-purple-100 p-6 md:p-8 shadow-sm max-w-6xl mx-auto space-y-6">
+                <div class="border-b border-purple-100 pb-4">
+                    <h2 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-heart text-rose-500"></i> My Favorites
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-1">Your favorite apps and uploaders. Get notified when they release new content.</p>
+                </div>
+
+                <div id="favorites-container" class="space-y-4">
+                    <div class="text-center py-12 border border-dashed border-purple-200 rounded-xl">
+                        <i class="fa-solid fa-heart text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-xs text-gray-500">No favorites yet. Browse the catalog and heart your favorite apps!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ABOUT & TERMS OF SERVICE PAGE ================= -->
+        <div id="page-about" class="page-view hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-purple-100 p-6 md:p-8 shadow-sm max-w-4xl mx-auto space-y-8">
+                <!-- Header -->
+                <div class="border-b border-purple-100 pb-4">
+                    <h2 class="text-2xl font-extrabold text-gray-900">About NikoDroidModsstore</h2>
+                    <p class="text-sm text-gray-500">The premier client-side Android modding app ecosystem.</p>
+                </div>
+
+                <!-- Detailed explanation of what the store is -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-purple-950 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-purple-600"></i> What is this store?
+                    </h3>
+                    <div class="text-xs text-gray-600 space-y-3 leading-relaxed">
+                        <p>
+                            <strong>NikoDroidModsstore</strong> is an advanced, transparent alternative store designed specifically for Android modifications, custom tweaks, and official unmodified application packages (APKs). Just like HappyMod, APKMirror, or Mobilism, we allow users to explore and acquire updated iterations of their favorite mobile utilities, tools, and entertainment.
+                        </p>
+                        <p>
+                            Unlike traditional stores that bombard you with malicious redirection schemes and unmoderated malware, NikoDroid prioritizes absolute ecosystem health. The website parses compiled APK file strings pool on your device's memory to establish correct package identifiers (e.g., <code class="bg-purple-50 text-purple-700 px-1 py-0.5 rounded">com.android.app</code>) before any app lists are generated, avoiding fake naming structures.
+                        </p>
+                        <p>
+                            Furthermore, we maintain a robust active monitoring dashboard. The store is managed in real time by the developer/owner, <strong class="text-purple-800">Nekofred</strong>, alongside community-nominated admins. This guarantees immediate attention to flagged listings and robust malware quarantine features.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Info Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2 p-4 bg-purple-50/50 rounded-xl border border-purple-100/50">
+                        <h3 class="font-bold text-purple-900 flex items-center gap-2">
+                            <i class="fa-solid fa-cubes"></i> Safe Client-Side Parsing
+                        </h3>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            NikoDroidModsstore reads strings blocks from uploaded APK packages directly inside your browser. No remote servers run execution scripts on your binary files, guaranteeing perfect environment sandboxing.
+                        </p>
+                    </div>
+                    <div class="space-y-2 p-4 bg-purple-50/50 rounded-xl border border-purple-100/50">
+                        <h3 class="font-bold text-purple-900 flex items-center gap-2">
+                            <i class="fa-solid fa-bug-slash"></i> Community-Driven Health
+                        </h3>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            We rely on transparent reporting protocols. When an app receives suspicious indicators or user complaints, administrators inspect it manually and authorize deployment modifications instantly.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Terms of Service (ToS) -->
+                <div class="space-y-4 pt-4 border-t border-purple-100">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-file-contract text-purple-600"></i> Terms of Service & General Rules
+                    </h3>
+                    
+                    <div class="space-y-3 text-xs text-gray-600 leading-relaxed bg-[#fcfbfe] border border-purple-50 p-4 rounded-xl">
+                        <div class="flex items-start gap-2.5">
+                            <span class="font-bold text-purple-600">1. Clean Conduct Policy</span>
+                            <p>Users must never upload malicious executables, software intended to steal credentials, fake installers containing aggressive advertisement kits, or viruses of any description.</p>
+                        </div>
+                        <div class="flex items-start gap-2.5 pt-2 border-t border-purple-50">
+                            <span class="font-bold text-purple-600">2. Developer Exoneration</span>
+                            <p>All items in this catalog are contributed by community members. The administrative team, the platform owner, and developers are completely exonerated and hold absolutely no liability for any software failures, data loss, device blocks, or operational disruptions caused by downloads from this site.</p>
+                        </div>
+                        <div class="flex items-start gap-2.5 pt-2 border-t border-purple-50">
+                            <span class="font-bold text-purple-600">3. Rapid Automated Quarantine</span>
+                            <p>Any application that accumulates 5 flags or community reports is quarantined automatically as "(Temporary Closed for Checking)". Our administrative panel reserves complete authority to verify or permanently ban entries.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Transparency & Banned Packages Blacklist -->
+                <div class="space-y-4 pt-6 border-t border-purple-100">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-ban text-rose-600"></i> Transparency Security Blacklist Registry
+                    </h3>
+                    <p class="text-xs text-gray-500">Forensic logs detailing malicious or deceptive software removed from NikoDroidModsstore by administrators after thorough environment checks.</p>
+                    <div id="banned-registry-container" class="space-y-3 max-h-[350px] overflow-y-auto pr-2">
+                        <p class="text-xs text-center text-gray-400 py-8">No packages registered on the security blacklist database. Clean repository environment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ADMIN PANEL / DASHBOARD PAGE ================= -->
+        <div id="page-admin" class="page-view hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-purple-100 p-6 shadow-sm space-y-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-purple-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-gray-900 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-amber-600"></i> Admin Console
+                        </h2>
+                        <p class="text-xs text-gray-500">Security enforcement, user access delegation, and quarantine inbox management.</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                        <i class="fa-solid fa-user-shield"></i> Active Admin: <span id="admin-badge-name" class="underline">Nekofred</span>
+                    </div>
+                </div>
+
+                <!-- Admin Tabs / Splitter -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left column: Inbox of Security Reports -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-gray-50 border border-purple-100 rounded-xl p-4">
+                            <h3 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-1.5">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-500 animate-pulse"></i> Reported Apps & Quarantine Inbox
+                            </h3>
+                            
+                            <div id="admin-reports-container" class="space-y-3 max-h-[450px] overflow-y-auto pr-1">
+                                <!-- Populated dynamically -->
+                                <p class="text-xs text-center text-gray-400 py-8">No security flags raised or outstanding quarantine files.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: User Management (Owner Only) -->
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 border border-purple-100 rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-sm text-gray-800 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-users-gear text-purple-600"></i> User Delegation
+                                </h3>
+                                <span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold">Owner Controls</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mb-4">Promote platform members to admins so they can review isolated code in sandboxes.</p>
+
+                            <div id="owner-users-container" class="space-y-2.5 max-h-[350px] overflow-y-auto pr-1">
+                                <!-- Users list populated dynamically -->
+                                <p class="text-xs text-center text-gray-400 py-8">Awaiting user authentication profiles...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- App Store Footer -->
+    <footer class="bg-[#11081e] border-t border-[#231238] text-purple-200/60 py-8 mt-12 text-center text-xs">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <img src="https://plain-eeur-prod-public.komododecks.com/202606/30/N07po0lkZ0GhnkPLoE2d/image.png" alt="NikoDroid Logo" class="h-6 w-auto opacity-70">
+                <span>© 2026 NikoDroidModsstore. All Rights Reserved.</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="showPage('about')" class="hover:text-purple-300 transition-colors">Privacy & Guidelines</button>
+                <span>•</span>
+                <button onclick="showPage('about')" class="hover:text-purple-300 transition-colors">Developer Liability</button>
+                <span>•</span>
+                <span class="text-purple-300/80" id="current-user-badge">User: Guest</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SIGN IN / SIGN UP MODAL -->
+    <div id="auth-modal" class="fixed inset-0 bg-[#06020a]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-purple-100 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300 text-gray-800" id="auth-modal-content">
+            
+            <div class="px-6 py-4 bg-[#24133b] text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-purple-300"></i> Account Identity
+                </h3>
+                <button onclick="closeAuthModal()" class="text-purple-200 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Tab Toggles -->
+            <div class="flex border-b border-purple-100">
+                <button onclick="switchAuthTab('login')" id="tab-login" class="flex-1 py-3 text-xs font-bold border-b-2 border-purple-600 text-purple-600 transition-colors">Log In</button>
+                <button onclick="switchAuthTab('signup')" id="tab-signup" class="flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors">Sign Up</button>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label for="auth-username" class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Username</label>
+                    <input type="text" id="auth-username" required placeholder="Enter username..." 
+                           class="w-full bg-gray-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <div>
+                    <label for="auth-password" class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="auth-password" required placeholder="Enter password..." 
+                           class="w-full bg-gray-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <div id="auth-info-block" class="text-[10px] text-purple-500/80 leading-relaxed pt-1 bg-purple-50/50 p-2.5 rounded-lg border border-purple-100/50">
+                    <i class="fa-solid fa-circle-info mr-1"></i> Owner: use <span class="font-mono bg-purple-100 text-purple-800 px-1 rounded">Nekofred</span> to access root controls.
+                </div>
+
+                <button type="submit" id="auth-action-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all">
+                    Sign In to Portal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- REPORT SUBMISSION MODAL -->
+    <div id="report-modal" class="fixed inset-0 bg-[#06020a]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-purple-100 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300 text-gray-800" id="report-modal-content">
+            
+            <div class="px-6 py-4 bg-[#24133b] text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-exclamation text-rose-400 animate-pulse"></i> Raise Security Flag
+                </h3>
+                <button onclick="closeReportModal()" class="text-purple-200 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div>
+                    <p class="text-xs text-gray-500">You are reporting <strong id="report-app-title" class="text-gray-800">App Name</strong>. If this app receives 5 cumulative report logs, it will lock into quarantine status automatically.</p>
+                </div>
+
+                <div>
+                    <label for="report-reason" class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Reason for Complaint</label>
+                    <select id="report-reason" class="w-full bg-gray-50 border border-purple-100 rounded-xl px-3 py-2 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="malware">Malware / Spyware / Adware</option>
+                        <option value="fake_mod">Fake Modification (No features altered)</option>
+                        <option value="broken">Crashes / Not working</option>
+                        <option value="abuse">Spam / Intellectual Property Violation</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="report-details" class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Additional description</label>
+                    <textarea id="report-details" rows="3" required placeholder="Please provide specific logs, behavior, or details of failure..." 
+                              class="w-full bg-gray-50 border border-purple-100 rounded-xl px-3 py-2 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+
+                <div class="flex items-center gap-3 justify-end pt-2">
+                    <button onclick="closeReportModal()" class="text-xs text-purple-600 hover:text-purple-800 font-semibold">Cancel</button>
+                    <button onclick="submitReportAction()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md">
+                        Transmit Flag Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPLOAD MODAL -->
+    <div id="upload-modal" class="fixed inset-0 bg-[#06020a]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-purple-100 w-full max-w-xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transform scale-95 opacity-0 transition-all duration-300 text-gray-800" id="upload-modal-content">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-[#24133b] text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-purple-300"></i>
+                    Upload to <span id="modal-title-type" class="text-purple-200 font-black">NikoDroid</span>
+                </h3>
+                <button onclick="closeUploadModal()" class="text-purple-200 hover:text-white p-2 rounded-lg hover:bg-purple-900/30 transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content/Form -->
+            <div class="p-6 overflow-y-auto space-y-4">
+                
+                <!-- Login Requirement Banner -->
+                <div id="upload-login-required" class="bg-amber-50 border border-amber-300 rounded-xl p-4 text-center space-y-2">
+                    <i class="fa-solid fa-lock text-amber-600 text-xl"></i>
+                    <p class="text-xs font-bold text-amber-800">Login Required to Upload</p>
+                    <p class="text-[10px] text-amber-700">You must be signed in to upload APKs to the store.</p>
+                    <button onclick="closeUploadModal(); openAuthModal();" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition-all mt-1">
+                        Sign In Now
+                    </button>
+                </div>
+
+                <!-- Upload Form (Hidden until logged in) -->
+                <div id="upload-form-content" class="hidden space-y-4">
+                    <!-- Category Selector -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Target Section</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" id="type-modded-btn" onclick="setUploadType('modded')" class="p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Modded APK
+                            </button>
+                            <button type="button" id="type-original-btn" onclick="setUploadType('original')" class="p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-shield-halved"></i> Original APK
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drag & Drop Zone -->
+                    <div id="dropzone" class="border-2 border-dashed border-purple-200 hover:border-purple-500 bg-purple-50/30 rounded-2xl p-6 text-center cursor-pointer transition-all relative">
+                        <input type="file" id="apk-file-input" accept=".apk" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        
+                        <div id="dropzone-idle" class="space-y-2">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto text-purple-600">
+                                <i class="fa-solid fa-file-export text-xl animate-bounce"></i>
+                            </div>
+                            <p class="font-bold text-xs text-gray-700">Drag your APK here or click to browse</p>
+                            <p class="text-[10px] text-gray-500">Parses strings pool and extracts app icon directly in client-side memory.</p>
+                        </div>
+
+                        <div id="dropzone-processing" class="hidden py-4 space-y-3">
+                            <i class="fa-solid fa-cog fa-spin text-3xl text-purple-600"></i>
+                            <p class="text-xs font-bold text-purple-800" id="processing-status">Scanning ZIP structures...</p>
+                            <p class="text-[10px] text-gray-500">Decompressing binary resource assets...</p>
+                        </div>
+
+                        <div id="dropzone-success" class="hidden py-2 space-y-2">
+                            <div id="upload-icon-preview-container" class="w-12 h-12 rounded-xl mx-auto border border-purple-200 overflow-hidden hidden">
+                                <img id="upload-icon-preview" class="w-full h-full object-cover" src="">
+                            </div>
+                            <div id="upload-success-fallback-icon" class="w-10 h-10 bg-emerald-100 border border-emerald-300 rounded-full flex items-center justify-center mx-auto text-emerald-600">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <p class="text-[11px] text-emerald-800 font-bold" id="extracted-filename">File Loaded Successfully</p>
+                        </div>
+                    </div>
+
+                    <!-- Version Update Detection -->
+                    <div id="version-update-detection" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-3 space-y-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-up text-blue-600"></i>
+                            <p class="text-xs font-bold text-blue-800">Version Update Detected!</p>
+                        </div>
+                        <p class="text-[10px] text-blue-700" id="version-update-message">
+                            This appears to be a new version of an existing app. The previous version will be archived and users will be notified of the update.
+                        </p>
+                    </div>
+
+                    <!-- Form Fields -->
+                    <div class="space-y-3">
+                        <div>
+                            <label for="app-name-input" class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">App Title</label>
+                            <input type="text" id="app-name-input" placeholder="e.g. Roomba Home" 
+                                   class="w-full bg-gray-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+
+                        <div>
+                            <label for="app-category-select" class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">App Category</label>
+                            <select id="app-category-select" class="w-full bg-gray-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="games">🎮 Games</option>
+                                <option value="tools" selected>🔧 Tools</option>
+                                <option value="social">💬 Social & Chat</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="app-version-input" class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Version</label>
+                                <input type="text" id="app-version-input" placeholder="e.g. 2.2.4" 
+                                       class="w-full bg-gray-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label for="app-creator-input" class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Developer / Brand</label>
+                                <input type="text" id="app-creator-input" placeholder="e.g. iRobot" 
+                                       class="w-full bg-gray-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label for="app-package-input" class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                    Package Name
+                                </label>
+                                <span id="package-badge" class="text-[9px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded border border-purple-300 font-mono hidden">Auto-Extracted</span>
+                            </div>
+                            <input type="text" id="app-package-input" placeholder="e.g. com.irobot.roombahome" 
+                                   class="w-full bg-gray-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
+                        </div>
+
+                        <div id="mod-features-wrapper">
+                            <label for="app-mod-input" class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Mod Features description</label>
+                            <textarea id="app-mod-input" rows="2" placeholder="e.g. Ad-free, Unlimited Coins, Full Premium features activated" 
+                                      class="w-full bg-gray-50 border border-purple-100 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="px-6 py-4 border-t border-purple-100 bg-purple-50/50 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeUploadModal()" class="px-4 py-2 text-xs font-bold text-purple-600 hover:text-purple-800 transition-all">Cancel</button>
+                <button type="button" id="submit-apk-btn" onclick="submitApk()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-purple-900/10 transition-all flex items-center gap-2 hidden">
+                    <i class="fa-solid fa-rocket"></i> Publish Mod to Store
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= SECURITY BAN DECISION MODAL ================= -->
+    <div id="ban-modal" class="fixed inset-0 bg-[#06020a]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-purple-100 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300 text-gray-800" id="ban-modal-content">
+            
+            <div class="px-6 py-4 bg-rose-950 border-b border-rose-850 text-white flex items-center justify-between">
+                <h3 class="font-extrabold text-sm flex items-center gap-1.5 text-rose-300">
+                    <i class="fa-solid fa-gavel"></i> Permanent Package Ban
+                </h3>
+                <button onclick="closeBanModal()" class="text-rose-200 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-gray-500">You are permanently removing and blacklisting <strong id="ban-app-title" class="text-rose-700">App Name</strong>. This record will write to the transparency index with your security reason.</p>
+
+                <div>
+                    <label for="ban-reason-select" class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Ban Violation Category</label>
+                    <select id="ban-reason-select" class="w-full bg-gray-50 border border-purple-100 rounded-xl px-3 py-2 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="Malware (Trojan/Spyware/Adware)">Malware (Trojan/Spyware/Adware)</option>
+                        <option value="Deceptive Fake Mod (No hacked features)">Deceptive Fake Mod (No hacked features)</option>
+                        <option value="Broken Executable (Crash loops)">Broken Executable (Crash loops)</option>
+                        <option value="Aggressive Ad-Kit Redirect Spam">Aggressive Ad-Kit Redirect Spam</option>
+                        <option value="Intellectual Property Abuse / Rip">Intellectual Property Abuse / Rip</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="ban-forensic-details" class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Forensic Analysis Explanation</label>
+                    <textarea id="ban-forensic-details" rows="3" required placeholder="e.g., Virustotal scan detected risk index: 48/72. Contains malicious payload strings within package..." 
+                              class="w-full bg-gray-50 border border-purple-100 rounded-xl px-3 py-2 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+
+                <div class="flex items-center gap-3 justify-end pt-2">
+                    <button onclick="closeBanModal()" class="text-xs text-purple-600 hover:text-purple-800 font-semibold">Cancel</button>
+                    <button onclick="submitBanAction()" class="bg-rose-700 hover:bg-rose-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md">
+                        Enforce Ban Registry
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= VIEW DETAILS / DOWNLOAD MODAL ================= -->
+    <div id="details-modal" class="fixed inset-0 bg-[#06020a]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-purple-100 w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-300 text-gray-800" id="details-modal-content">
+            
+            <div class="p-6 space-y-5 relative">
+                <!-- Close Button -->
+                <button onclick="closeDetailsModal()" class="absolute right-4 top-4 text-purple-400 hover:text-purple-700 p-2 rounded-lg transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+
+                <!-- Top Layout -->
+                <div class="flex gap-4 items-start pt-2">
+                    <!-- Standard placeholder app icon (never custom user uploaded) -->
+                    <div id="detail-icon-container" class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-800 to-indigo-950 border border-purple-600/20 flex items-center justify-center text-purple-100 shadow-md shrink-0 overflow-hidden">
+                        <i class="fa-solid fa-cube text-2xl"></i>
+                    </div>
+                    <div class="space-y-1 min-w-0 flex-grow">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span id="detail-badge-type" class="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded">MODDED</span>
+                            <span id="detail-badge-safety" class="hidden text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                <i class="fa-solid fa-circle-check"></i> Verified Safe
+                            </span>
+                            <span id="detail-version-badge" class="text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded font-bold">v1.0.0</span>
+                        </div>
+                        <h3 id="detail-title" class="font-black text-lg text-gray-900 truncate pr-6"></h3>
+                        <p id="detail-creator" class="text-xs text-gray-500"></p>
+                        <!-- Rating Display -->
+                        <div class="flex items-center gap-2 mt-1">
+                            <div id="detail-rating-display" class="star-rating-display"></div>
+                            <span id="detail-rating-count" class="text-xs text-gray-500">(0 reviews)</span>
+                        </div>
+                        <!-- Favorite Button -->
+                        <button id="detail-favorite-btn" onclick="toggleFavoriteApp()" class="mt-1 text-rose-400 hover:text-rose-600 transition-colors favorite-btn">
+                            <i class="fa-regular fa-heart"></i> <span class="text-[10px]">Favorite</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Banned App Alert Banner -->
+                <div id="detail-banned-box" class="bg-rose-50 border border-rose-300 rounded-xl p-3.5 space-y-1 text-xs text-rose-900 hidden">
+                    <p class="font-bold flex items-center gap-1.5 text-rose-700">
+                        <i class="fa-solid fa-ban text-rose-600 animate-pulse"></i> This Package is Banned & Blacklisted
+                    </p>
+                    <p class="text-[11px] leading-relaxed">
+                        Reason: <strong id="detail-ban-category" class="text-rose-800 uppercase">[N/A]</strong>
+                    </p>
+                    <p id="detail-ban-description" class="text-[11px] italic bg-white p-2 border border-rose-100 rounded-lg mt-1 text-rose-950"></p>
+                    <p class="text-[10px] text-gray-500 mt-1">Banned by <span id="detail-ban-moderator" class="font-semibold"></span></p>
+                </div>
+
+                <!-- App Quarantine Warn Box -->
+                <div id="detail-quarantine-box" class="bg-amber-50 border border-amber-300 rounded-xl p-3.5 space-y-1 text-xs text-amber-800 hidden">
+                    <p class="font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-exclamation text-amber-600 animate-pulse"></i> File Closed Under Security Checking
+                    </p>
+                    <p class="text-[11px] leading-relaxed">
+                        This item has collected 5 or more security complaints or was manually closed by moderators. Downloading is restricted to authorized administrative sandbox accounts until further inspection.
+                    </p>
+                </div>
+
+                <!-- App specifications -->
+                <div class="grid grid-cols-2 gap-3 bg-purple-50/30 border border-purple-100 rounded-xl p-3 text-xs font-semibold text-gray-700">
+                    <div class="space-y-0.5">
+                        <p class="text-gray-400 text-[10px] uppercase">Version</p>
+                        <p id="detail-version" class="text-gray-900 text-sm font-bold"></p>
+                    </div>
+                    <div class="space-y-0.5">
+                        <p class="text-gray-400 text-[10px] uppercase">Est. Size</p>
+                        <p id="detail-size" class="text-gray-900 text-sm font-bold"></p>
+                    </div>
+                    <div class="space-y-0.5 col-span-2 border-t border-purple-100 pt-2.5 mt-1">
+                        <p class="text-gray-400 text-[10px] uppercase">Package Name</p>
+                        <p id="detail-package" class="text-purple-700 font-mono text-xs select-all bg-purple-50 border border-purple-100 rounded px-2 py-1 mt-1"></p>
+                    </div>
+                    <div class="space-y-0.5 col-span-2">
+                        <p class="text-gray-400 text-[10px] uppercase">Uploader</p>
+                        <p id="detail-uploader" class="text-gray-900 text-xs font-bold"></p>
+                    </div>
+                </div>
+
+                <!-- Mod description box (if applicable) -->
+                <div id="detail-mod-box" class="space-y-2 hidden">
+                    <h4 class="text-xs font-bold text-purple-800 flex items-center gap-1">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> MODIFICATION INFORMATION:
+                    </h4>
+                    <div class="bg-purple-50 border border-purple-100 text-purple-950 text-xs p-3 rounded-xl leading-relaxed" id="detail-mod-desc"></div>
+                </div>
+
+                <!-- Standard disclaimer and touch targeting warning -->
+                <div class="flex items-center gap-2.5 text-[11px] text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100 leading-relaxed">
+                    <i class="fa-solid fa-shield-halved text-purple-600 shrink-0"></i>
+                    <span>Deployment package verified clean for emulator and physical environment tests.</span>
+                </div>
+
+                <!-- Download trigger buttons -->
+                <div class="pt-2 flex flex-col gap-2">
+                    <button id="download-trigger-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-xs tracking-wide">
+                        <i class="fa-solid fa-download"></i> Download APK Installer
+                    </button>
+                    
+                    <!-- Action row: Report and Admin Toggle Quarantining -->
+                    <div class="flex items-center gap-2 mt-1">
+                        <button id="detail-report-btn" class="flex-1 border border-rose-200 hover:bg-rose-50 text-rose-700 font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-circle-exclamation"></i> Report App
+                        </button>
+                        <button id="detail-admin-toggle-btn" class="hidden flex-1 border border-amber-300 hover:bg-amber-50 text-amber-800 font-bold py-2 rounded-xl text-xs transition-all items-center justify-center gap-1">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Quarantine Toggle
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="border-t border-purple-100 p-6 space-y-4 bg-gray-50/50">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-extrabold text-sm text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-purple-600"></i> Reviews & Ratings
+                    </h3>
+                    <span id="review-count" class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">0 Reviews</span>
+                </div>
+
+                <!-- Write a Review -->
+                <div class="bg-white border border-purple-100 rounded-xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs font-bold text-gray-700">Write a Review</p>
+                        <div class="star-rating">
+                            <input type="radio" name="rating" id="star5" value="5">
+                            <label for="star5" title="5 stars"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" name="rating" id="star4" value="4">
+                            <label for="star4" title="4 stars"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" name="rating" id="star3" value="3">
+                            <label for="star3" title="3 stars"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" name="rating" id="star2" value="2">
+                            <label for="star2" title="2 stars"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" name="rating" id="star1" value="1">
+                            <label for="star1" title="1 star"><i class="fa-solid fa-star"></i></label>
+                        </div>
+                    </div>
+                    <div>
+                        <textarea id="review-text" rows="2" placeholder="Share your experience with this app..." 
+                                  class="w-full bg-gray-50 border border-purple-100 rounded-xl px-3 py-2 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="submitReview()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition-all">
+                            <i class="fa-solid fa-pen-to-square mr-1"></i> Post Review
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reviews List -->
+                <div id="reviews-container" class="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                    <!-- Dynamic reviews populated by JS -->
+                    <div class="text-center py-6 text-gray-400 text-xs">No reviews yet. Be the first to share your thoughts!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- FIREBASE AND INITIALIZATION -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, collection, onSnapshot, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by environment or fallback definitions
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nikodroidmodsstore';
+        
+        let firebaseConfig = {
+            apiKey: "mock-api-key",
+            authDomain: "mock-project.firebaseapp.com",
+            projectId: "mock-project",
+            storageBucket: "mock-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            try {
+                firebaseConfig = JSON.parse(__firebase_config);
+            } catch (e) {
+                console.error("Failed to parse firebase configuration", e);
+            }
+        }
+
+        // Initialize Firebase structures
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // State machine variables
+        let currentUserId = null;
+        let globalApks = [];
+        let globalUsers = [];
+        let globalBlacklist = [];
+        let globalReviews = [];
+        let globalFavorites = [];
+        let globalNotifications = [];
+        let activeUserSession = null; // { username, role, uid }
+        let uploadType = 'modded'; // 'modded' or 'original'
+        let currentAuthTab = 'login'; // 'login' or 'signup'
+        let activeReportingApk = null;
+        let activeBanningApk = null;
+        let activeCatalogCategory = 'all';
+        let activeCatalogMobileTab = 'modded';
+        let activeReviewApk = null;
+        let activeFavoriteApk = null;
+        let notificationsOpen = false;
+
+        // DOM elements cache
+        const moddedList = document.getElementById('modded-list');
+        const originalList = document.getElementById('original-list');
+        const searchInput = document.getElementById('search-input');
+        const searchInputMobile = document.getElementById('search-input-mobile');
+        const catalogSearchInput = document.getElementById('catalog-search-input');
+        const authBtnText = document.getElementById('auth-btn-text');
+        const modCountDisplay = document.getElementById('mod-count-display');
+        const userCountDisplay = document.getElementById('user-count-display');
+        const reviewCountDisplay = document.getElementById('review-count-display');
+        const notificationBadge = document.getElementById('notification-badge');
+        const notificationsDropdown = document.getElementById('notifications-dropdown');
+        const notificationsList = document.getElementById('notifications-list');
+
+        // Authenticate anonymously first to allow read/write operations (Rule 3 Compliance)
+        async function authenticate() {
+            const statusIcon = document.querySelector('#user-status-btn i');
+            
+            try {
+                let userCredential;
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    userCredential = await signInAnonymously(auth);
+                }
+                
+                currentUserId = userCredential.user.uid;
+                statusIcon.className = "fa-solid fa-cloud text-lg text-emerald-500";
+                statusIcon.setAttribute('title', 'Connected globally');
+                
+                // Initialize user account configurations
+                await resolveStoredSession();
+                showToast("Sandbox Repository Activated", "success");
+            } catch (err) {
+                console.warn("Firebase Auth blocked, switching to sandbox mode:", err);
+                currentUserId = 'guest_' + Math.random().toString(36).substring(2, 9);
+                statusIcon.className = "fa-solid fa-cloud-slash text-lg text-rose-500 animate-pulse";
+                statusIcon.setAttribute('title', 'Offline Mode');
+                showToast("Using offline Sandbox storage", "warning");
+                // Run offline database fallback
+                startLocalStore();
+            }
+        }
+
+        // Resolves persistent sessions from localStorage or accounts DB
+        async function resolveStoredSession() {
+            const savedSessionStr = localStorage.getItem('nikodroid_session');
+            if (savedSessionStr) {
+                try {
+                    const session = JSON.parse(savedSessionStr);
+                    activeUserSession = session;
+                    updateUserUI();
+                } catch(e) {
+                    localStorage.removeItem('nikodroid_session');
+                }
+            } else {
+                updateUserUI();
+            }
+        }
+
+        // Updates layouts and indicators based on active session roles
+        function updateUserUI() {
+            const userBadge = document.getElementById('current-user-badge');
+            const adminBadgeName = document.getElementById('admin-badge-name');
+            const adminNavBtn = document.getElementById('admin-nav-btn');
+            const sidebarAdminBtn = document.getElementById('sidebar-admin-btn');
+
+            if (activeUserSession) {
+                authBtnText.innerText = `Sign Out (${activeUserSession.username})`;
+                userBadge.innerText = `Identity: ${activeUserSession.username} (${activeUserSession.role})`;
+                adminBadgeName.innerText = `${activeUserSession.username} (${activeUserSession.role})`;
+
+                if (activeUserSession.role === 'admin' || activeUserSession.role === 'owner') {
+                    adminNavBtn.style.display = 'flex';
+                    sidebarAdminBtn.style.display = 'block';
+                } else {
+                    adminNavBtn.style.display = 'none';
+                    sidebarAdminBtn.style.display = 'none';
+                }
+                
+                // Update upload modal to show form
+                const loginRequired = document.getElementById('upload-login-required');
+                const uploadForm = document.getElementById('upload-form-content');
+                const submitBtn = document.getElementById('submit-apk-btn');
+                
+                if (loginRequired && uploadForm) {
+                    loginRequired.classList.add('hidden');
+                    uploadForm.classList.remove('hidden');
+                    submitBtn.classList.remove('hidden');
+                }
+            } else {
+                authBtnText.innerText = "Sign In / Join";
+                userBadge.innerText = "Guest Mode";
+                adminNavBtn.style.display = 'none';
+                sidebarAdminBtn.style.display = 'none';
+                
+                // Update upload modal to show login required
+                const loginRequired = document.getElementById('upload-login-required');
+                const uploadForm = document.getElementById('upload-form-content');
+                const submitBtn = document.getElementById('submit-apk-btn');
+                
+                if (loginRequired && uploadForm) {
+                    loginRequired.classList.remove('hidden');
+                    uploadForm.classList.add('hidden');
+                    submitBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        // Subscriptions to APK, User, and Reviews lists
+        function subscribeToRepository() {
+            if (!currentUserId || currentUserId.startsWith('guest_')) {
+                return;
+            }
+
+            // Path rule: /artifacts/{appId}/public/data/apks
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'apks');
+            
+            // Fetch and order directly in Javascript memory
+            onSnapshot(colRef, (snapshot) => {
+                const apks = [];
+                snapshot.forEach((doc) => {
+                    apks.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort by timestamp descending
+                apks.sort((a, b) => {
+                    const tA = a.uploadedAt ? (a.uploadedAt.seconds ? a.uploadedAt.seconds * 1000 : new Date(a.uploadedAt).getTime()) : 0;
+                    const tB = b.uploadedAt ? (b.uploadedAt.seconds ? b.uploadedAt.seconds * 1000 : new Date(b.uploadedAt).getTime()) : 0;
+                    return tB - tA;
+                });
+
+                globalApks = apks;
+                renderApks();
+                renderQuarantineInbox();
+                updateStats();
+            }, (error) => {
+                console.error("Firestore loading failure:", error);
+                startLocalStore();
+            });
+
+            // Path rule: /artifacts/{appId}/public/data/profiles
+            const profilesRef = collection(db, 'artifacts', appId, 'public', 'data', 'profiles');
+            onSnapshot(profilesRef, (snapshot) => {
+                const profiles = [];
+                snapshot.forEach((doc) => {
+                    profiles.push({ id: doc.id, ...doc.data() });
+                });
+                globalUsers = profiles;
+                renderUserDelegation();
+                updateStats();
+            }, (error) => {
+                console.error("Profiles subscription failure:", error);
+            });
+
+            // Path rule: /artifacts/{appId}/public/data/blacklist
+            const blacklistRef = collection(db, 'artifacts', appId, 'public', 'data', 'blacklist');
+            onSnapshot(blacklistRef, (snapshot) => {
+                const list = [];
+                snapshot.forEach((doc) => {
+                    list.push({ id: doc.id, ...doc.data() });
+                });
+                globalBlacklist = list;
+                renderBlacklistRegistry();
+            }, (error) => {
+                console.error("Blacklist subscription failure:", error);
+            });
+
+            // Path rule: /artifacts/{appId}/public/data/reviews
+            const reviewsRef = collection(db, 'artifacts', appId, 'public', 'data', 'reviews');
+            onSnapshot(reviewsRef, (snapshot) => {
+                const reviews = [];
+                snapshot.forEach((doc) => {
+                    reviews.push({ id: doc.id, ...doc.data() });
+                });
+                globalReviews = reviews;
+                // If a review modal is open, refresh the reviews
+                if (activeReviewApk) {
+                    renderReviews(activeReviewApk.id);
+                }
+                updateStats();
+            }, (error) => {
+                console.error("Reviews subscription failure:", error);
+            });
+
+            // Path rule: /artifacts/{appId}/public/data/favorites
+            if (activeUserSession) {
+                const favQuery = query(
+                    collection(db, 'artifacts', appId, 'public', 'data', 'favorites'),
+                    where('userId', '==', activeUserSession.uid)
+                );
+                onSnapshot(favQuery, (snapshot) => {
+                    const favs = [];
+                    snapshot.forEach((doc) => {
+                        favs.push({ id: doc.id, ...doc.data() });
+                    });
+                    globalFavorites = favs;
+                    renderFavorites();
+                    updateFavoriteButtons();
+                }, (error) => {
+                    console.error("Favorites subscription failure:", error);
+                });
+            }
+
+            // Path rule: /artifacts/{appId}/public/data/notifications
+            if (activeUserSession) {
+                const notifQuery = query(
+                    collection(db, 'artifacts', appId, 'public', 'data', 'notifications'),
+                    where('userId', '==', activeUserSession.uid),
+                    orderBy('timestamp', 'desc')
+                );
+                onSnapshot(notifQuery, (snapshot) => {
+                    const notifs = [];
+                    snapshot.forEach((doc) => {
+                        notifs.push({ id: doc.id, ...doc.data() });
+                    });
+                    globalNotifications = notifs;
+                    renderNotifications();
+                }, (error) => {
+                    console.error("Notifications subscription failure:", error);
+                });
+            }
+        }
+
+        // Fallback for offline mode
+        function startLocalStore() {
+            try {
+                const stored = localStorage.getItem('nikodroid_apks_fallback');
+                if (stored) {
+                    globalApks = JSON.parse(stored);
+                } else {
+                    globalApks = [];
+                }
+
+                const blacklistedStored = localStorage.getItem('nikodroid_blacklist_fallback');
+                if (blacklistedStored) {
+                    globalBlacklist = JSON.parse(blacklistedStored);
+                } else {
+                    globalBlacklist = [];
+                }
+
+                const reviewsStored = localStorage.getItem('nikodroid_reviews_fallback');
+                if (reviewsStored) {
+                    globalReviews = JSON.parse(reviewsStored);
+                } else {
+                    globalReviews = [];
+                }
+
+                const favoritesStored = localStorage.getItem('nikodroid_favorites_fallback');
+                if (favoritesStored) {
+                    globalFavorites = JSON.parse(favoritesStored);
+                } else {
+                    globalFavorites = [];
+                }
+
+                const notificationsStored = localStorage.getItem('nikodroid_notifications_fallback');
+                if (notificationsStored) {
+                    globalNotifications = JSON.parse(notificationsStored);
+                } else {
+                    globalNotifications = [];
+                }
+            } catch(e) {
+                globalApks = [];
+                globalBlacklist = [];
+                globalReviews = [];
+                globalFavorites = [];
+                globalNotifications = [];
+            }
+            renderApks();
+            renderBlacklistRegistry();
+            renderFavorites();
+            renderNotifications();
+            updateStats();
+        }
+
+        // Update stats display
+        function updateStats() {
+            const modCount = globalApks.filter(apk => apk.type === 'modded').length;
+            const userCount = globalUsers.length;
+            const reviewCount = globalReviews.length;
+            
+            if (modCountDisplay) modCountDisplay.textContent = modCount;
+            if (userCountDisplay) userCountDisplay.textContent = userCount || 1;
+            if (reviewCountDisplay) reviewCountDisplay.textContent = reviewCount;
+        }
+
+        // Render transparency blacklist registry list
+        function renderBlacklistRegistry() {
+            const container = document.getElementById('banned-registry-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Extract both historical offline bans and the active banned status APKs for total transparency
+            const activeBannedApks = globalApks.filter(apk => apk.status === 'banned');
+            const combinedBlacklist = [...globalBlacklist];
+
+            activeBannedApks.forEach(apk => {
+                // Check to avoid duplicates in display
+                if (!combinedBlacklist.some(b => b.packageName === apk.packageName)) {
+                    combinedBlacklist.push({
+                        id: apk.id,
+                        name: apk.name,
+                        creator: apk.creator,
+                        packageName: apk.packageName,
+                        reasonCategory: apk.banReasonCategory || 'Unspecified Threat',
+                        forensicDetail: apk.banReasonDetail || 'Flagged by administrative security analysis.',
+                        bannedAt: apk.bannedAt || apk.uploadedAt || new Date().toISOString(),
+                        bannedBy: apk.bannedBy || 'System'
+                    });
+                }
+            });
+
+            // Sort combined list descending by timestamp
+            combinedBlacklist.sort((a, b) => new Date(b.bannedAt).getTime() - new Date(a.bannedAt).getTime());
+
+            if (combinedBlacklist.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 bg-gray-50 border border-purple-50 rounded-xl">
+                        <i class="fa-solid fa-shield-halved text-purple-300 text-xl mb-1.5"></i>
+                        <p class="text-xs text-gray-500">Security indexes clear. Zero banned packages on list.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            combinedBlacklist.forEach(banned => {
+                const card = document.createElement('div');
+                card.className = "bg-rose-50/40 border border-rose-100 rounded-xl p-3.5 space-y-2 text-xs flex flex-col justify-between";
+                
+                const banDate = new Date(banned.bannedAt).toLocaleDateString(undefined, { 
+                    year: 'numeric', month: 'short', day: 'numeric' 
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="font-extrabold text-gray-900 flex items-center gap-1.5 flex-wrap">
+                                <span class="line-through text-gray-500">${escapeHTML(banned.name)}</span>
+                                <span class="text-[9px] bg-rose-100 text-rose-800 border border-rose-200 px-1.5 py-0.2 rounded font-bold font-mono">BANNED</span>
+                            </h4>
+                            <p class="text-[10px] text-purple-700 font-mono mt-0.5">${escapeHTML(banned.packageName)}</p>
+                            <p class="text-[10px] text-gray-400 mt-0.5">Discovered developer: ${escapeHTML(banned.creator)} • Logged on ${banDate}</p>
+                        </div>
+                        <span class="text-[9px] bg-red-600 text-white font-bold px-2 py-0.5 rounded shrink-0 uppercase tracking-wide">
+                            ${escapeHTML(banned.reasonCategory)}
+                        </span>
+                    </div>
+                    <div class="bg-white border border-rose-50 p-2.5 rounded-lg text-[11px] text-rose-950 font-medium leading-relaxed">
+                        <span class="font-extrabold text-rose-800"><i class="fa-solid fa-microscope text-[10px]"></i> forensic investigation reason:</span> 
+                        ${escapeHTML(banned.forensicDetail)}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Audit verification actions (Prompts modal on ban)
+        window.auditAppAction = async function(apkId, action) {
+            if (!activeUserSession || (activeUserSession.role !== 'admin' && activeUserSession.role !== 'owner')) {
+                showToast("Requires Admin authorization clearance", "error");
+                return;
+            }
+
+            const targetDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'apks', apkId);
+
+            if (action === 'approve') {
+                try {
+                    await updateDoc(targetDocRef, {
+                        reportsCount: 0,
+                        reportsDetail: [],
+                        status: 'approved'
+                    });
+                    showToast("Application approved and verified safe!", "success");
+                    closeDetailsModal();
+                } catch(e) {
+                    showToast("Failed to write update state", "error");
+                }
+            } else if (action === 'ban') {
+                const item = globalApks.find(apk => apk.id === apkId);
+                if (!item) return;
+                openBanModal(item);
+            }
+        };
+
+        window.openBanModal = function(apkItem) {
+            activeBanningApk = apkItem;
+            document.getElementById('ban-app-title').innerText = apkItem.name;
+            document.getElementById('ban-forensic-details').value = '';
+
+            document.getElementById('ban-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('ban-modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 50);
+        };
+
+        window.closeBanModal = function() {
+            document.getElementById('ban-modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                document.getElementById('ban-modal').classList.add('hidden');
+                activeBanningApk = null;
+            }, 250);
+        };
+
+        // Submit Ban Payload & Blacklist write out
+        window.submitBanAction = async function() {
+            if (!activeBanningApk) return;
+
+            const category = document.getElementById('ban-reason-select').value;
+            const forensicText = document.getElementById('ban-forensic-details').value.trim();
+
+            if (!forensicText) {
+                showToast("Please provide detailed forensic analysis reason", "warning");
+                return;
+            }
+
+            const targetApkRef = doc(db, 'artifacts', appId, 'public', 'data', 'apks', activeBanningApk.id);
+            const blacklistColRef = collection(db, 'artifacts', appId, 'public', 'data', 'blacklist');
+
+            const banUpdatePayload = {
+                status: 'banned',
+                banReasonCategory: category,
+                banReasonDetail: forensicText,
+                bannedAt: new Date().toISOString(),
+                bannedBy: activeUserSession ? activeUserSession.username : 'Moderator'
+            };
+
+            const blacklistPayload = {
+                name: activeBanningApk.name,
+                creator: activeBanningApk.creator,
+                packageName: activeBanningApk.packageName,
+                reasonCategory: category,
+                forensicDetail: forensicText,
+                bannedAt: new Date().toISOString(),
+                bannedBy: activeUserSession ? activeUserSession.username : 'Moderator'
+            };
+
+            try {
+                if (currentUserId && !currentUserId.startsWith('guest_')) {
+                    // Keep file visible but transition status to 'banned'
+                    await updateDoc(targetApkRef, banUpdatePayload);
+                    // Also write a copy to general blacklist for history tracking
+                    await addDoc(blacklistColRef, blacklistPayload);
+                } else {
+                    // Sandbox fallback
+                    globalApks = globalApks.map(apk => {
+                        if (apk.id === activeBanningApk.id) {
+                            return { ...apk, ...banUpdatePayload };
+                        }
+                        return apk;
+                    });
+                    globalBlacklist.unshift({ id: 'local_ban_' + Date.now(), ...blacklistPayload });
+                    
+                    localStorage.setItem('nikodroid_blacklist_fallback', JSON.stringify(globalBlacklist));
+                    localStorage.setItem('nikodroid_apks_fallback', JSON.stringify(globalApks));
+                }
+
+                renderApks();
+                renderBlacklistRegistry();
+                showToast("Package blacklisted and flagged as Banned!", "success");
+                closeBanModal();
+                closeDetailsModal();
+            } catch(e) {
+                console.error(e);
+                showToast("Enforcing ban registry action failed", "error");
+            }
+        };
+
+        // Render current APK listings for Home and dedicated Apps Section
+        function renderApks() {
+            const homeQuery = (searchInput.value || searchInputMobile.value || '').trim().toLowerCase();
+            const catalogQuery = (catalogSearchInput.value || '').trim().toLowerCase();
+            
+            // Home listings
+            const homeModded = globalApks.filter(apk => apk.type === 'modded' && (apk.name.toLowerCase().includes(homeQuery) || apk.packageName.toLowerCase().includes(homeQuery)));
+            const homeOriginal = globalApks.filter(apk => apk.type === 'original' && (apk.name.toLowerCase().includes(homeQuery) || apk.packageName.toLowerCase().includes(homeQuery)));
+
+            renderList(homeModded, moddedList, 'modded');
+            renderList(homeOriginal, originalList, 'original');
+
+            // Catalog listings (Page Apps with additional category filtration logic)
+            const filteredCatalogApks = globalApks.filter(apk => {
+                const matchesSearch = apk.name.toLowerCase().includes(catalogQuery) || apk.packageName.toLowerCase().includes(catalogQuery);
+                const matchesCategory = activeCatalogCategory === 'all' || (apk.category && apk.category.toLowerCase() === activeCatalogCategory);
+                return matchesSearch && matchesCategory;
+            });
+
+            const catalogModded = filteredCatalogApks.filter(apk => apk.type === 'modded');
+            const catalogOriginal = filteredCatalogApks.filter(apk => apk.type === 'original');
+
+            // Counters updating
+            document.getElementById('catalog-modded-count').innerText = `${catalogModded.length} Items`;
+            document.getElementById('catalog-official-count').innerText = `${catalogOriginal.length} Items`;
+
+            const catalogModdedList = document.getElementById('catalog-modded-list');
+            const catalogOfficialList = document.getElementById('catalog-official-list');
+
+            renderList(catalogModded, catalogModdedList, 'modded');
+            renderList(catalogOriginal, catalogOfficialList, 'original');
+        }
+
+        // Active Category filtering operations
+        window.filterCatalogCategory = function(category) {
+            activeCatalogCategory = category;
+            
+            // Highlight chip selection
+            document.querySelectorAll('.category-chip').forEach(chip => {
+                chip.className = "category-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-purple-50/50 hover:border-purple-200 transition-all";
+            });
+
+            const selectedChip = document.getElementById(`chip-${category}`);
+            if (selectedChip) {
+                selectedChip.className = "category-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-bold bg-[#24133b] text-white border border-transparent transition-all";
+            }
+
+            renderApks();
+        };
+
+        // Switch Mobile View tabs for HappyMod design
+        window.switchCatalogMobileTab = function(tab) {
+            activeCatalogMobileTab = tab;
+            const moddedCol = document.getElementById('catalog-modded-column');
+            const officialCol = document.getElementById('catalog-official-column');
+            const moddedTab = document.getElementById('tab-catalog-modded');
+            const officialTab = document.getElementById('tab-catalog-official');
+
+            if (tab === 'modded') {
+                moddedCol.classList.remove('hidden');
+                officialCol.classList.add('hidden');
+                
+                moddedTab.className = "flex-1 py-3 text-xs font-extrabold border-b-2 border-purple-600 text-purple-600 flex items-center justify-center gap-1.5";
+                officialTab.className = "flex-1 py-3 text-xs font-extrabold border-b-2 border-transparent text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1.5";
+            } else {
+                officialCol.classList.remove('hidden');
+                moddedCol.classList.add('hidden');
+
+                officialTab.className = "flex-1 py-3 text-xs font-extrabold border-b-2 border-purple-600 text-purple-600 flex items-center justify-center gap-1.5";
+                moddedTab.className = "flex-1 py-3 text-xs font-extrabold border-b-2 border-transparent text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1.5";
+            }
+        };
+
+        // Render lists function
+        function renderList(items, container, type) {
+            container.innerHTML = '';
+            
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 px-4 border border-dashed border-purple-200 rounded-xl bg-purple-50/20">
+                        <i class="fa-solid fa-folder-open text-3xl text-purple-300 mb-2"></i>
+                        <p class="text-xs text-gray-500">No matching ${type} APKs found.</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Submit clean APK structures to populate this store.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                
+                const isBanned = item.status === 'banned';
+                const isUnderQuarantine = item.reportsCount >= 5 || item.status === 'checking';
+                const isVerified = item.status === 'approved';
+                const isFavorited = isAppFavorited(item.id);
+
+                // Determine custom styling based on security status
+                let borderStyle = "border-purple-100 hover:border-purple-300";
+                let bgStyle = "bg-white hover:bg-purple-50/30";
+                if (isBanned) {
+                    borderStyle = "border-rose-200 hover:border-rose-400";
+                    bgStyle = "bg-rose-50/20 hover:bg-rose-50/40";
+                } else if (isUnderQuarantine) {
+                    borderStyle = "border-amber-200 hover:border-amber-300";
+                    bgStyle = "bg-amber-50/10 hover:bg-amber-50/20";
+                }
+
+                card.className = `${bgStyle} border ${borderStyle} rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer shadow-sm group`;
+                card.onclick = () => openDetailsModal(item);
+
+                const sizeLabel = item.size ? formatBytes(item.size) : 'On-Demand';
+
+                // Render real extracted APK icon if available, otherwise fallback
+                let itemIconHTML = '';
+                if (item.iconData) {
+                    itemIconHTML = `<img src="${item.iconData}" alt="${escapeHTML(item.name)} icon" class="w-10 h-10 rounded-lg object-cover border border-purple-200 shrink-0">`;
+                } else {
+                    if (isBanned) {
+                        itemIconHTML = `<div class="w-10 h-10 rounded-lg bg-rose-100 border border-rose-300 flex items-center justify-center text-rose-600 shrink-0"><i class="fa-solid fa-ban text-base animate-pulse"></i></div>`;
+                    } else if (isUnderQuarantine) {
+                        itemIconHTML = `<div class="w-10 h-10 rounded-lg bg-amber-50 border border-amber-300 flex items-center justify-center text-amber-600 shrink-0"><i class="fa-solid fa-circle-exclamation text-base"></i></div>`;
+                    } else if (isVerified) {
+                        itemIconHTML = `<div class="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0"><i class="fa-solid fa-check-double text-base"></i></div>`;
+                    } else {
+                        itemIconHTML = `<div class="w-10 h-10 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 transition-colors shrink-0 group-hover:bg-purple-600 group-hover:text-white"><i class="fa-solid fa-box text-base"></i></div>`;
+                    }
+                }
+
+                // Calculate average rating
+                const avgRating = calculateAverageRating(item.id);
+                const ratingStars = generateStarDisplay(avgRating);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 min-w-0">
+                        ${itemIconHTML}
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <h4 class="font-extrabold text-xs text-gray-900 group-hover:text-purple-800 transition-colors truncate ${isBanned ? 'line-through text-gray-400' : ''}">
+                                    ${escapeHTML(item.name)} 
+                                </h4>
+                                <span class="text-[9px] bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded font-mono font-bold">v${escapeHTML(item.version)}</span>
+                                ${isFavorited ? `<i class="fa-solid fa-heart text-rose-500 text-[10px]"></i>` : ''}
+                            </div>
+                            <p class="text-[11px] text-gray-500 truncate mt-0.5">by ${escapeHTML(item.creator)}</p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <div class="star-display text-[10px]">${ratingStars}</div>
+                                <span class="text-[10px] text-gray-400">(${getReviewCount(item.id)} reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        ${isBanned ? `
+                            <span class="text-[9px] px-2 py-0.5 bg-red-600 text-white rounded font-extrabold uppercase">Banned</span>
+                        ` : ''}
+                        ${isUnderQuarantine && !isBanned ? `
+                            <span class="text-[9px] px-2 py-0.5 bg-amber-100 text-amber-800 border border-amber-200 rounded font-bold capitalize">Locked</span>
+                        ` : ''}
+                        ${isVerified ? `
+                            <span class="text-[9px] px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded font-bold capitalize">Verified</span>
+                        ` : ''}
+                        <div class="w-7 h-7 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-angle-right text-xs"></i>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Calculate average rating for an app
+        function calculateAverageRating(apkId) {
+            const reviews = globalReviews.filter(r => r.apkId === apkId);
+            if (reviews.length === 0) return 0;
+            const total = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+            return total / reviews.length;
+        }
+
+        // Get review count for an app
+        function getReviewCount(apkId) {
+            return globalReviews.filter(r => r.apkId === apkId).length;
+        }
+
+        // Generate star display HTML
+        function generateStarDisplay(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating - fullStars >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+            
+            let html = '';
+            for (let i = 0; i < fullStars; i++) {
+                html += '<i class="fa-solid fa-star"></i>';
+            }
+            if (halfStar) {
+                html += '<i class="fa-solid fa-star-half-stroke"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                html += '<i class="fa-regular fa-star"></i>';
+            }
+            return html;
+        }
+
+        // Check if app is favorited
+        function isAppFavorited(apkId) {
+            return globalFavorites.some(fav => fav.apkId === apkId);
+        }
+
+        // Render delegation controls (Owner role mapping)
+        function renderUserDelegation() {
+            const container = document.getElementById('owner-users-container');
+            container.innerHTML = '';
+
+            if (globalUsers.length === 0) {
+                container.innerHTML = `<p class="text-xs text-center text-gray-400 py-6">No user directories registered.</p>`;
+                return;
+            }
+
+            globalUsers.forEach(user => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2.5 bg-white border border-purple-100 rounded-xl text-xs";
+                
+                let actionBtnHTML = '';
+                if (user.role === 'user') {
+                    actionBtnHTML = `
+                        <button onclick="changeUserRole('${user.id}', 'admin')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-1 rounded text-[10px] transition-all">
+                            Promote Admin
+                        </button>
+                    `;
+                } else if (user.role === 'admin') {
+                    actionBtnHTML = `
+                        <button onclick="changeUserRole('${user.id}', 'user')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-2 py-1 rounded text-[10px] transition-all">
+                            Demote User
+                        </button>
+                    `;
+                } else if (user.role === 'owner') {
+                    actionBtnHTML = `<span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">Owner Access</span>`;
+                }
+
+                // If logged in is NOT owner, disable toggle interactions
+                const canManage = activeUserSession && activeUserSession.role === 'owner';
+                if (!canManage) {
+                    actionBtnHTML = `<span class="text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold">${user.role}</span>`;
+                }
+
+                row.innerHTML = `
+                    <div class="min-w-0">
+                        <p class="font-extrabold text-gray-900 truncate">${escapeHTML(user.username)}</p>
+                        <p class="text-[9px] text-gray-400 font-mono truncate">UID: ${user.uid}</p>
+                    </div>
+                    <div class="shrink-0 ml-2">
+                        ${actionBtnHTML}
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Change user authorization rank
+        window.changeUserRole = async function(docId, targetRole) {
+            if (!activeUserSession || activeUserSession.role !== 'owner') {
+                showToast("Action restricted to Owner credentials", "error");
+                return;
+            }
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', docId);
+                await updateDoc(docRef, { role: targetRole });
+                showToast("User clearance revised", "success");
+            } catch(e) {
+                console.error(e);
+                showToast("Delegation adjustment failed", "error");
+            }
+        };
+
+        // Render Reported items quarantine log
+        function renderQuarantineInbox() {
+            const container = document.getElementById('admin-reports-container');
+            container.innerHTML = '';
+
+            const reportedApps = globalApks.filter(apk => (apk.reportsCount && apk.reportsCount > 0) || apk.status === 'checking');
+
+            if (reportedApps.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white border border-dashed border-purple-200 rounded-xl">
+                        <i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2"></i>
+                        <p class="text-xs text-gray-500">Security indexes clear. No reported applications.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            reportedApps.forEach(apk => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-purple-100 rounded-xl p-3.5 space-y-3 shadow-sm";
+                
+                // Show list of logs
+                let reportsLogHTML = '';
+                if (apk.reportsDetail && apk.reportsDetail.length > 0) {
+                    reportsLogHTML = `
+                        <div class="border-t border-purple-50 pt-2.5 mt-2 space-y-1 text-[10px] text-gray-600">
+                            <p class="font-bold text-gray-500 uppercase">Recent Flag details:</p>
+                            ${apk.reportsDetail.map(r => `
+                                <div class="bg-gray-50 p-1.5 rounded border border-gray-100">
+                                    <span class="font-bold text-purple-700">${escapeHTML(r.reporter)}</span> (${r.reason}): "${escapeHTML(r.details)}"
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                const isLocked = apk.reportsCount >= 5 || apk.status === 'checking';
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3 text-xs">
+                        <div class="min-w-0">
+                            <h4 class="font-extrabold text-gray-900 flex items-center gap-1.5 truncate">
+                                ${escapeHTML(apk.name)} <span class="font-normal text-[10px] text-gray-400">(${apk.packageName})</span>
+                            </h4>
+                            <p class="text-[10px] text-rose-600 font-bold mt-1">Accumulated Flags: ${apk.reportsCount || 0}/5</p>
+                            <p class="text-[10px] text-gray-500 mt-0.5">Status: <strong class="uppercase">${apk.status}</strong></p>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="downloadAdminApk('${apk.id}')" class="bg-gray-800 hover:bg-black text-white font-bold px-2 py-1 rounded text-[10px]" title="Audit APK byte structure">
+                                <i class="fa-solid fa-download"></i> Download Binary
+                            </button>
+                        </div>
+                    </div>
+
+                    ${reportsLogHTML}
+
+                    <!-- Management buttons -->
+                    <div class="flex items-center gap-2 pt-2 border-t border-purple-50">
+                        <button onclick="auditAppAction('${apk.id}', 'approve')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 rounded-lg text-[10px] transition-all">
+                            <i class="fa-solid fa-check"></i> Approve & Verify Clean
+                        </button>
+                        <button onclick="auditAppAction('${apk.id}', 'ban')" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 rounded-lg text-[10px] transition-all">
+                            <i class="fa-solid fa-trash"></i> Ban / Delete File
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Download quarantining safety bypass for administration analysis
+        window.downloadAdminApk = function(apkId) {
+            const item = globalApks.find(apk => apk.id === apkId);
+            if (!item) return;
+            compileAndDownloadApk(item);
+        };
+
+        // Manage active pages
+        window.showPage = function(pageName) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
+            const targetPage = document.getElementById(`page-${pageName}`);
+            if (targetPage) targetPage.classList.remove('hidden');
+
+            // Reset navigation highlighted selections
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                btn.className = "nav-link text-purple-200 hover:text-white transition-colors";
+            });
+
+            // Apply highlight style specifically to active page button
+            const activeNavLinks = Array.from(document.querySelectorAll('.nav-link')).filter(btn => {
+                const text = btn.innerText.toLowerCase();
+                if (pageName === 'home' && text.includes('home')) return true;
+                if (pageName === 'apps' && text.includes('all apps')) return true;
+                if (pageName === 'favorites' && text.includes('favorites')) return true;
+                if (pageName === 'about' && text.includes('about')) return true;
+                if (pageName === 'admin' && text.includes('admin')) return true;
+                return false;
+            });
+            activeNavLinks.forEach(btn => {
+                btn.className = "nav-link text-white border-b-2 border-white transition-colors";
+            });
+            
+            // If favorites page, render favorites
+            if (pageName === 'favorites') {
+                renderFavorites();
+            }
+        };
+
+        // Active Authentication Modal Actions
+        window.openAuthModal = function() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('auth-modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 50);
+            switchAuthTab('login');
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('auth-modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                document.getElementById('auth-modal').classList.add('hidden');
+                document.getElementById('auth-username').value = '';
+                document.getElementById('auth-password').value = '';
+            }, 250);
+        };
+
+        window.switchAuthTab = function(tab) {
+            currentAuthTab = tab;
+            const tabLogin = document.getElementById('tab-login');
+            const tabSignup = document.getElementById('tab-signup');
+            const actionBtn = document.getElementById('auth-action-btn');
+
+            if (tab === 'login') {
+                tabLogin.className = "flex-1 py-3 text-xs font-bold border-b-2 border-purple-600 text-purple-600 transition-colors";
+                tabSignup.className = "flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors";
+                actionBtn.innerText = "Log In to Portal";
+            } else {
+                tabSignup.className = "flex-1 py-3 text-xs font-bold border-b-2 border-purple-600 text-purple-600 transition-colors";
+                tabLogin.className = "flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors";
+                actionBtn.innerText = "Register New Account";
+            }
+        };
+
+        // Handle credential authentication submission
+        window.handleAuthSubmit = async function(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('auth-username').value.trim();
+            const passwordInput = document.getElementById('auth-password').value.trim();
+
+            if (!usernameInput || !passwordInput) {
+                showToast("Please provide credentials", "warning");
+                return;
+            }
+
+            // Standard bypass checks for hardcoded owner credentials
+            let assignedRole = 'user';
+            let bypassVerification = false;
+
+            if (usernameInput === 'Nekofred') {
+                if (passwordInput === 'Rsk.com.haha01') {
+                    assignedRole = 'owner';
+                    bypassVerification = true;
+                } else {
+                    showToast("Invalid password credentials for owner Nekofred", "error");
+                    return;
+                }
+            }
+
+            if (currentAuthTab === 'login') {
+                // Read from user accounts DB profile registry
+                const foundProfile = globalUsers.find(u => u.username.toLowerCase() === usernameInput.toLowerCase());
+                
+                if (bypassVerification) {
+                    activeUserSession = {
+                        username: usernameInput,
+                        role: 'owner',
+                        uid: currentUserId
+                    };
+                    
+                    // Create persistent profile inside Firebase to register owner in general user list
+                    const ownerRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', 'profile_owner');
+                    await setDoc(ownerRef, {
+                        username: 'Nekofred',
+                        role: 'owner',
+                        uid: currentUserId
+                    });
+
+                    localStorage.setItem('nikodroid_session', JSON.stringify(activeUserSession));
+                    updateUserUI();
+                    showToast("Owner panel active. Access granted.", "success");
+                    closeAuthModal();
+                    return;
+                }
+
+                if (!foundProfile) {
+                    showToast("Username not registered on database directory", "warning");
+                    return;
+                }
+
+                if (foundProfile.password !== passwordInput) {
+                    showToast("Password verification match failed", "error");
+                    return;
+                }
+
+                activeUserSession = {
+                    username: foundProfile.username,
+                    role: foundProfile.role,
+                    uid: currentUserId
+                };
+                localStorage.setItem('nikodroid_session', JSON.stringify(activeUserSession));
+                updateUserUI();
+                showToast(`Welcome back, ${foundProfile.username}!`, "success");
+                closeAuthModal();
+
+            } else {
+                // SIGN UP FLOW
+                const alreadyExists = globalUsers.some(u => u.username.toLowerCase() === usernameInput.toLowerCase());
+                if (alreadyExists) {
+                    showToast("Username already registered in database", "warning");
+                    return;
+                }
+
+                const docId = 'user_' + Date.now();
+                const profilePayload = {
+                    username: usernameInput,
+                    password: passwordInput,
+                    role: assignedRole,
+                    uid: currentUserId
+                };
+
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', docId);
+                    await setDoc(docRef, profilePayload);
+                    
+                    activeUserSession = {
+                        username: usernameInput,
+                        role: assignedRole,
+                        uid: currentUserId
+                    };
+                    localStorage.setItem('nikodroid_session', JSON.stringify(activeUserSession));
+                    updateUserUI();
+                    showToast("Account signed up successfully!", "success");
+                    closeAuthModal();
+                } catch(err) {
+                    console.error(err);
+                    showToast("Failed to register profile", "error");
+                }
+            }
+        };
+
+        // Sign Out Sequence
+        window.handleLogOut = function() {
+            activeUserSession = null;
+            localStorage.removeItem('nikodroid_session');
+            updateUserUI();
+            showPage('home');
+            showToast("Logged out of session", "info");
+        };
+
+        // Intercept log in trigger button
+        window.triggerLoginAction = function() {
+            if (activeUserSession) {
+                handleLogOut();
+            } else {
+                openAuthModal();
+            }
+        };
+        document.getElementById('auth-trigger-btn').onclick = triggerLoginAction;
+
+        // Manage state for Modals
+        window.openUploadModal = function(type = 'modded') {
+            if (!activeUserSession) {
+                showToast("Please sign in to upload APKs", "warning");
+                openAuthModal();
+                return;
+            }
+            
+            document.getElementById('upload-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('upload-modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 50);
+            setUploadType(type);
+        };
+
+        window.closeUploadModal = function() {
+            document.getElementById('upload-modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                document.getElementById('upload-modal').classList.add('hidden');
+                resetUploadForm();
+            }, 250);
+        };
+
+        window.setUploadType = function(type) {
+            uploadType = type;
+            const modBtn = document.getElementById('type-modded-btn');
+            const origBtn = document.getElementById('type-original-btn');
+            const modWrapper = document.getElementById('mod-features-wrapper');
+            const submitBtn = document.getElementById('submit-apk-btn');
+
+            if (type === 'modded') {
+                modBtn.className = "p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 bg-[#24133b] text-white border-transparent";
+                origBtn.className = "p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 bg-gray-50 text-gray-500 border-purple-100 hover:border-purple-300";
+                modWrapper.classList.remove('hidden');
+                submitBtn.innerHTML = '<i class="fa-solid fa-rocket animate-pulse"></i> Publish Mod to Store';
+            } else {
+                origBtn.className = "p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 bg-[#24133b] text-white border-transparent";
+                modBtn.className = "p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 bg-gray-50 text-gray-500 border-purple-100 hover:border-purple-300";
+                modWrapper.classList.add('hidden');
+                submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Upload Original APK';
+            }
+        };
+
+        // Complex dynamic Parsing logic of Android Binary XML
+        const apkFileInput = document.getElementById('apk-file-input');
+        let parsedApkData = null;
+
+        // Heuristically scores icon paths inside the ZIP file to extract the highest resolution main launcher icon
+        function scoreIconPath(path) {
+            let score = 0;
+            const lower = path.toLowerCase();
+            
+            // Score by density
+            if (lower.includes('xxxhdpi')) score += 100;
+            else if (lower.includes('xxhdpi')) score += 90;
+            else if (lower.includes('xhdpi')) score += 80;
+            else if (lower.includes('hdpi')) score += 70;
+            else if (lower.includes('mdpi')) score += 60;
+            else if (lower.includes('ldpi')) score += 50;
+            
+            // Score by matching common launcher names
+            if (lower.includes('ic_launcher.png') || lower.includes('ic_launcher.webp')) score += 30;
+            else if (lower.includes('ic_launcher_round')) score += 20;
+            else if (lower.includes('app_icon') || lower.includes('app_logo')) score += 15;
+            else if (lower.includes('icon.png') || lower.includes('icon.webp')) score += 10;
+            
+            // Penalty for background/foreground layers
+            if (lower.includes('foreground') || lower.includes('background')) score -= 40;
+            
+            return score;
+        }
+
+        apkFileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('dropzone-idle').classList.add('hidden');
+            document.getElementById('dropzone-processing').classList.remove('hidden');
+            document.getElementById('processing-status').innerText = "Decompressing resource pool headers...";
+
+            try {
+                const arrayBuffer = await readFileAsArrayBuffer(file);
+                
+                // Parse zip entries using JSZip
+                const zip = await JSZip.loadAsync(arrayBuffer);
+                const manifestEntry = zip.file("AndroidManifest.xml");
+                
+                if (!manifestEntry) {
+                    throw new Error("Target package contains no AndroidManifest.xml directory");
+                }
+
+                document.getElementById('processing-status').innerText = "Reading Android Binary Table string pool...";
+                
+                const manifestBuffer = await manifestEntry.async("arraybuffer");
+                
+                // Read and Parse Package Name directly from strings pool
+                const extractedPackageName = parsePackageNameFromAxml(manifestBuffer);
+                
+                if (!extractedPackageName) {
+                    throw new Error("Unable to parse unique package identification structures");
+                }
+
+                // Best guess heuristic for APP name and version based on string pool
+                const apkMetaInfo = guessApkDetails(file.name, manifestBuffer);
+
+                document.getElementById('processing-status').innerText = "Extracting app logo resources...";
+
+                // Try to extract actual App Icon
+                let iconBase64 = null;
+                const filePaths = Object.keys(zip.files);
+                const iconCandidates = filePaths.filter(path => {
+                    const l = path.toLowerCase();
+                    return (l.endsWith('.png') || l.endsWith('.webp') || l.endsWith('.jpg') || l.endsWith('.jpeg')) &&
+                           (l.includes('ic_launcher') || l.includes('app_icon') || l.includes('icon') || l.includes('logo')) &&
+                           !l.endsWith('.xml'); // ignore XML adaptive icon drawables which cannot render natively in browser
+                });
+
+                if (iconCandidates.length > 0) {
+                    // Sort candidates to find the highest-quality flat launcher icon
+                    iconCandidates.sort((a, b) => scoreIconPath(b) - scoreIconPath(a));
+                    const bestIconPath = iconCandidates[0];
+                    const extension = bestIconPath.split('.').pop().toLowerCase();
+                    const mime = extension === 'webp' ? 'image/webp' : (extension === 'jpg' || extension === 'jpeg' ? 'image/jpeg' : 'image/png');
+                    
+                    try {
+                        const iconRawData = await zip.file(bestIconPath).async("base64");
+                        iconBase64 = `data:${mime};base64,${iconRawData}`;
+                    } catch (e) {
+                        console.warn("Failed extracting target icon raw data:", e);
+                    }
+                }
+
+                // Auto-fill forms with the parsed output
+                document.getElementById('app-package-input').value = extractedPackageName;
+                document.getElementById('app-name-input').value = apkMetaInfo.appName;
+                document.getElementById('app-version-input').value = apkMetaInfo.version;
+                document.getElementById('app-creator-input').value = apkMetaInfo.creator;
+
+                document.getElementById('package-badge').classList.remove('hidden');
+                
+                // Check for version update
+                const existingApp = globalApks.find(apk => apk.packageName === extractedPackageName);
+                if (existingApp) {
+                    const versionDetection = document.getElementById('version-update-detection');
+                    versionDetection.classList.remove('hidden');
+                    document.getElementById('version-update-message').textContent = 
+                        `This appears to be a new version of "${existingApp.name}" (v${existingApp.version} → v${apkMetaInfo.version}). Users who favorited this app will be notified of the update.`;
+                }
+                
+                // Show successful load state
+                document.getElementById('dropzone-processing').classList.add('hidden');
+                document.getElementById('dropzone-success').classList.remove('hidden');
+                document.getElementById('extracted-filename').innerText = `${file.name} (${formatBytes(file.size)})`;
+
+                const previewContainer = document.getElementById('upload-icon-preview-container');
+                const previewImg = document.getElementById('upload-icon-preview');
+                const fallbackIcon = document.getElementById('upload-success-fallback-icon');
+
+                if (iconBase64) {
+                    previewImg.src = iconBase64;
+                    previewContainer.classList.remove('hidden');
+                    fallbackIcon.classList.add('hidden');
+                } else {
+                    previewContainer.classList.add('hidden');
+                    fallbackIcon.classList.remove('hidden');
+                }
+
+                parsedApkData = {
+                    name: file.name,
+                    size: file.size,
+                    binaryData: arrayBuffer,
+                    iconData: iconBase64
+                };
+
+                showToast("Package details and app icon parsed successfully!", "success");
+
+            } catch (err) {
+                console.error("Extraction error:", err);
+                document.getElementById('dropzone-processing').classList.add('hidden');
+                document.getElementById('dropzone-idle').classList.remove('hidden');
+                showToast(err.message || "Manual metadata registry overrides initiated.", "warning");
+                
+                // Form setup on parser failure
+                const rawName = file.name.replace(/\.[^/.]+$/, "");
+                document.getElementById('app-name-input').value = rawName.split(/[._-]/)[0];
+                document.getElementById('app-package-input').value = "com.nikodroid." + rawName.toLowerCase().replace(/[^a-z0-9]/g, "");
+                document.getElementById('app-version-input').value = "1.0.0";
+                
+                parsedApkData = {
+                    name: file.name,
+                    size: file.size,
+                    iconData: null
+                };
+            }
+        });
+
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Decodes binary manifest table structure
+        function parsePackageNameFromAxml(buffer) {
+            const view = new DataView(buffer);
+            const magic = view.getUint32(0, true);
+            if (magic !== 0x00080003) {
+                throw new Error("AXML signature header verification mismatch");
+            }
+
+            let offset = 8;
+            const chunkType = view.getUint32(offset, true);
+            if (chunkType !== 0x001C0001) {
+                return null;
+            }
+
+            const chunkSize = view.getUint32(offset + 4, true);
+            const stringCount = view.getUint32(offset + 8, true);
+            const flags = view.getUint32(offset + 16, true);
+            const stringStart = view.getUint32(offset + 20, true);
+
+            const isUtf8 = (flags & (1 << 8)) !== 0;
+            const stringOffsets = [];
+            for (let i = 0; i < stringCount; i++) {
+                stringOffsets.push(view.getUint32(offset + 28 + i * 4, true));
+            }
+
+            const strings = [];
+            const poolBase = offset + stringStart;
+
+            for (let i = 0; i < stringCount; i++) {
+                let strOffset = poolBase + stringOffsets[i];
+                let decodedStr = "";
+
+                if (isUtf8) {
+                    let len = view.getUint8(strOffset);
+                    if ((len & 0x80) !== 0) {
+                        strOffset += 2;
+                    } else {
+                        strOffset += 1;
+                    }
+                    
+                    let byteLen = view.getUint8(strOffset);
+                    if ((byteLen & 0x80) !== 0) {
+                        strOffset += 2;
+                    } else {
+                        strOffset += 1;
+                    }
+
+                    if (byteLen > 0) {
+                        const rawBytes = new Uint8Array(buffer, strOffset, byteLen);
+                        decodedStr = new TextDecoder("utf-8").decode(rawBytes);
+                    }
+                } else {
+                    let len = view.getUint16(strOffset, true);
+                    if ((len & 0x8000) !== 0) {
+                        strOffset += 4;
+                    } else {
+                        strOffset += 2;
+                    }
+
+                    if (len > 0) {
+                        const rawChars = [];
+                        for (let c = 0; c < len; c++) {
+                            rawChars.push(view.getUint16(strOffset + c * 2, true));
+                        }
+                        decodedStr = String.fromCharCode.apply(null, rawChars);
+                    }
+                }
+                strings.push(decodedStr);
+            }
+
+            const packageCandidates = strings.filter(s => /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/.test(s));
+            if (packageCandidates.length > 0) {
+                const purified = packageCandidates.filter(s => !s.startsWith('android:') && !s.includes('schema') && !s.includes('http'));
+                if (purified.length > 0) return purified[0];
+                return packageCandidates[0];
+            }
+            return null;
+        }
+
+        // Intelligently guesses app title & metadata details
+        function guessApkDetails(filename, buffer) {
+            const info = {
+                appName: "NikoApp",
+                version: "1.0.0",
+                creator: "Developer"
+            };
+
+            const cleanName = filename.replace(/\.[^/.]+$/, "");
+            const parts = cleanName.split(/[-_]/);
+            
+            if (parts.length > 0) {
+                info.appName = parts[0].replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+            }
+
+            const versionPattern = /v?(\d+\.\d+(\.\d+)?)/i;
+            const match = cleanName.match(versionPattern);
+            if (match) {
+                info.version = match[1];
+            }
+
+            return info;
+        }
+
+        function resetUploadForm() {
+            document.getElementById('app-name-input').value = '';
+            document.getElementById('app-category-select').value = 'tools';
+            document.getElementById('app-version-input').value = '';
+            document.getElementById('app-creator-input').value = '';
+            document.getElementById('app-package-input').value = '';
+            document.getElementById('app-mod-input').value = '';
+            
+            document.getElementById('dropzone-idle').classList.remove('hidden');
+            document.getElementById('dropzone-processing').classList.add('hidden');
+            document.getElementById('dropzone-success').classList.add('hidden');
+            document.getElementById('package-badge').classList.add('hidden');
+            document.getElementById('upload-icon-preview-container').classList.add('hidden');
+            document.getElementById('version-update-detection').classList.add('hidden');
+            
+            apkFileInput.value = '';
+            parsedApkData = null;
+        }
+
+        // Submit APK properties to target sync nodes
+        window.submitApk = async function() {
+            if (!activeUserSession) {
+                showToast("Please sign in to upload APKs", "warning");
+                openAuthModal();
+                return;
+            }
+
+            const name = document.getElementById('app-name-input').value.trim();
+            const category = document.getElementById('app-category-select').value;
+            const version = document.getElementById('app-version-input').value.trim();
+            const creator = document.getElementById('app-creator-input').value.trim();
+            const packageName = document.getElementById('app-package-input').value.trim();
+            const modDesc = document.getElementById('app-mod-input').value.trim();
+
+            if (!name || !version || !creator || !packageName) {
+                showToast("Required details are incomplete", "warning");
+                return;
+            }
+
+            const packageRegex = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/;
+            if (!packageRegex.test(packageName)) {
+                showToast("Invalid Android package structure format", "warning");
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-apk-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Writing index allocations...';
+
+            const finalSize = parsedApkData ? parsedApkData.size : Math.floor(Math.random() * (45000000 - 5000000) + 5000000);
+            const finalIcon = parsedApkData ? parsedApkData.iconData : null;
+
+            const metaPayload = {
+                name,
+                version,
+                creator,
+                packageName,
+                type: uploadType,
+                size: finalSize,
+                category: category,
+                iconData: finalIcon,
+                modDescription: uploadType === 'modded' ? modDesc : '',
+                uploader: activeUserSession.username,
+                uploaderId: activeUserSession.uid
+            };
+
+            const success = await saveApkMeta(metaPayload);
+            
+            submitBtn.disabled = false;
+            setUploadType(uploadType);
+
+            if (success) {
+                showToast("Application Published Successfully!", "success");
+                closeUploadModal();
+            } else {
+                showToast("An error occurred publishing the application details", "error");
+            }
+        };
+
+        // Save metadata payload to Firestore or fallback LocalStore
+        async function saveApkMeta(payload) {
+            const docId = 'apk_' + Date.now();
+            const basePayload = {
+                ...payload,
+                reportsCount: 0,
+                reportsDetail: [],
+                status: 'active',
+                uploadedAt: new Date().toISOString()
+            };
+
+            try {
+                if (currentUserId && !currentUserId.startsWith('guest_')) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'apks', docId);
+                    await setDoc(docRef, basePayload);
+                    
+                    // Check if this is an update to an existing app
+                    const existingApp = globalApks.find(apk => apk.packageName === payload.packageName && apk.id !== docId);
+                    if (existingApp) {
+                        // Archive the old version
+                        const oldDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'apks', existingApp.id);
+                        await updateDoc(oldDocRef, { 
+                            status: 'archived',
+                            archivedAt: new Date().toISOString()
+                        });
+                        
+                        // Notify followers of the update
+                        await notifyFollowers(payload.uploaderId, payload.uploader, payload.name, payload.version);
+                    }
+                } else {
+                    // Localstorage offline sandbox mode
+                    globalApks.unshift({ id: docId, ...basePayload });
+                    localStorage.setItem('nikodroid_apks_fallback', JSON.stringify(globalApks));
+                    renderApks();
+                }
+                return true;
+            } catch(e) {
+                console.error("Firestore Save Error:", e);
+                return false;
+            }
+        }
+
+        // Notify followers about new upload/update
+        async function notifyFollowers(uploaderId, uploaderName, appName, version) {
+            try {
+                // Get all users who follow this uploader
+                const followersQuery = query(
+                    collection(db, 'artifacts', appId, 'public', 'data', 'favorites'),
+                    where('uploaderId', '==', uploaderId)
+                );
+                const followersSnapshot = await getDocs(followersQuery);
+                
+                const notificationsRef = collection(db, 'artifacts', appId, 'public', 'data', 'notifications');
+                
+                for (const doc of followersSnapshot.docs) {
+                    const fav = doc.data();
+                    const notification = {
+                        userId: fav.userId,
+                        type: 'update',
+                        title: `${uploaderName} uploaded a new app!`,
+                        message: `${appName} v${version} is now available.`,
+                        appId: fav.apkId || 'new',
+                        read: false,
+                        timestamp: new Date().toISOString()
+                    };
+                    await addDoc(notificationsRef, notification);
+                }
+                
+                showToast(`Notifications sent to ${followersSnapshot.size} followers!`, "success");
+            } catch (e) {
+                console.error("Failed to send notifications:", e);
+            }
+        }
+
+        // Open reporting dialogue flow
+        window.openReportModal = function(apkItem) {
+            activeReportingApk = apkItem;
+            document.getElementById('report-app-title').innerText = apkItem.name;
+            document.getElementById('report-details').value = '';
+
+            document.getElementById('report-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('report-modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 50);
+        };
+
+        window.closeReportModal = function() {
+            document.getElementById('report-modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                document.getElementById('report-modal').classList.add('hidden');
+                activeReportingApk = null;
+            }, 250);
+        };
+
+        // Transmit complaint log payload to backend sync nodes
+        window.submitReportAction = async function() {
+            if (!activeReportingApk) return;
+
+            const reason = document.getElementById('report-reason').value;
+            const details = document.getElementById('report-details').value.trim();
+
+            if (!details) {
+                showToast("Please provide incident details", "warning");
+                return;
+            }
+
+            const targetApkRef = doc(db, 'artifacts', appId, 'public', 'data', 'apks', activeReportingApk.id);
+
+            // Compute increment and log
+            const existingCount = activeReportingApk.reportsCount || 0;
+            const newCount = existingCount + 1;
+            const reportLog = {
+                reporter: activeUserSession ? activeUserSession.username : 'Anonymous User',
+                reason: reason,
+                details: details,
+                timestamp: new Date().toISOString()
+            };
+
+            const currentDetails = activeReportingApk.reportsDetail || [];
+            currentDetails.push(reportLog);
+
+            const updates = {
+                reportsCount: newCount,
+                reportsDetail: currentDetails
+            };
+
+            // Rule action: automatic security quarantine closure if threshold of 5 is exceeded
+            if (newCount >= 5) {
+                updates.status = 'checking';
+            }
+
+            try {
+                await updateDoc(targetApkRef, updates);
+                showToast("Your report has been successfully transmitted to checking inbox", "success");
+                closeReportModal();
+                closeDetailsModal();
+            } catch(e) {
+                console.error(e);
+                showToast("Unable to submit report details", "error");
+            }
+        };
+
+        // Manage APK Details Drawer
+        window.openDetailsModal = function(item) {
+            activeReviewApk = item;
+            activeFavoriteApk = item;
+            document.getElementById('details-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('details-modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 50);
+
+            document.getElementById('detail-title').innerText = item.name;
+            document.getElementById('detail-creator').innerText = `by ${item.creator}`;
+            document.getElementById('detail-version').innerText = `v${item.version}`;
+            document.getElementById('detail-size').innerText = formatBytes(item.size);
+            document.getElementById('detail-package').innerText = item.packageName;
+            document.getElementById('detail-uploader').innerText = item.uploader || 'Unknown';
+
+            // Display version badge
+            document.getElementById('detail-version-badge').innerText = `v${item.version}`;
+
+            // Display extracted icon inside detail view
+            const iconContainer = document.getElementById('detail-icon-container');
+            if (item.iconData) {
+                iconContainer.innerHTML = `<img src="${item.iconData}" alt="${escapeHTML(item.name)} icon" class="w-full h-full object-cover">`;
+            } else {
+                iconContainer.innerHTML = `<i class="fa-solid fa-cube text-2xl"></i>`;
+            }
+
+            const typeBadge = document.getElementById('detail-badge-type');
+            if (item.type === 'modded') {
+                typeBadge.className = "text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded text-purple-700 bg-purple-100 border border-purple-200";
+                typeBadge.innerText = "MODDED";
+                document.getElementById('detail-mod-box').classList.remove('hidden');
+                document.getElementById('detail-mod-desc').innerText = item.modDescription || "No custom logs declared.";
+            } else {
+                typeBadge.className = "text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded text-indigo-700 bg-indigo-100 border border-indigo-200";
+                typeBadge.innerText = "ORIGINAL";
+                document.getElementById('detail-mod-box').classList.add('hidden');
+            }
+
+            // Safety markers
+            const safetyBadge = document.getElementById('detail-badge-safety');
+            if (item.status === 'approved') {
+                safetyBadge.classList.remove('hidden');
+            } else {
+                safetyBadge.classList.add('hidden');
+            }
+
+            // Quarantine and Ban Visibility Controls
+            const isBanned = item.status === 'banned';
+            const isQuarantined = (item.reportsCount >= 5 || item.status === 'checking') && !isBanned;
+            
+            const banBox = document.getElementById('detail-banned-box');
+            const warnBox = document.getElementById('detail-quarantine-box');
+            const downloadBtn = document.getElementById('download-trigger-btn');
+
+            if (isBanned) {
+                banBox.classList.remove('hidden');
+                document.getElementById('detail-ban-category').innerText = item.banReasonCategory || 'Unspecified Threat';
+                document.getElementById('detail-ban-description').innerText = item.banReasonDetail || 'No detailed analysis reasoning provided.';
+                document.getElementById('detail-ban-moderator').innerText = item.bannedBy || 'System Moderator';
+            } else {
+                banBox.classList.add('hidden');
+            }
+
+            if (isQuarantined) {
+                warnBox.classList.remove('hidden');
+            } else {
+                warnBox.classList.add('hidden');
+            }
+
+            // Authorization download lock checks
+            const isAdmin = activeUserSession && (activeUserSession.role === 'admin' || activeUserSession.role === 'owner');
+            
+            if (isBanned) {
+                // Absolute Lockout of downloads for Banned apps
+                downloadBtn.disabled = true;
+                downloadBtn.className = "w-full bg-rose-100 text-rose-700 border border-rose-300 font-extrabold py-3 rounded-xl flex items-center justify-center gap-2 text-xs cursor-not-allowed";
+                downloadBtn.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Download Blocked (Banned Package)`;
+            } else if (isQuarantined && !isAdmin) {
+                // Disable button for normal users when app is quarantined
+                downloadBtn.disabled = true;
+                downloadBtn.className = "w-full bg-gray-200 text-gray-400 font-extrabold py-3 rounded-xl flex items-center justify-center gap-2 text-xs cursor-not-allowed";
+                downloadBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Downloader Locked (Under Review)';
+            } else {
+                downloadBtn.disabled = false;
+                downloadBtn.className = "w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-xs tracking-wide";
+                downloadBtn.innerHTML = '<i class="fa-solid fa-download"></i> Download APK Installer';
+                downloadBtn.onclick = () => compileAndDownloadApk(item);
+            }
+
+            // Setup report trigger action link
+            const reportBtn = document.getElementById('detail-report-btn');
+            reportBtn.onclick = () => openReportModal(item);
+
+            // Toggle admin administrative override tools
+            const adminQuarantineBtn = document.getElementById('detail-admin-toggle-btn');
+            if (isAdmin) {
+                adminQuarantineBtn.classList.remove('hidden');
+                adminQuarantineBtn.classList.add('flex');
+                adminQuarantineBtn.onclick = async () => {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'apks', item.id);
+                    const targetStatus = item.status === 'checking' ? 'active' : 'checking';
+                    try {
+                        await updateDoc(docRef, { status: targetStatus });
+                        showToast(`Quarantine state toggled to ${targetStatus}`, "info");
+                        closeDetailsModal();
+                    } catch(e) {
+                        showToast("Manual state toggle failed", "error");
+                    }
+                };
+            } else {
+                adminQuarantineBtn.classList.add('hidden');
+                adminQuarantineBtn.classList.remove('flex');
+            }
+
+            // Update favorite button
+            updateFavoriteButton(item.id);
+
+            // Display ratings and reviews
+            renderRatingDisplay(item.id);
+            renderReviews(item.id);
+        };
+
+        window.closeDetailsModal = function() {
+            document.getElementById('details-modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                document.getElementById('details-modal').classList.add('hidden');
+                activeReviewApk = null;
+                activeFavoriteApk = null;
+            }, 250);
+        };
+
+        // Render rating display in details modal
+        function renderRatingDisplay(apkId) {
+            const avgRating = calculateAverageRating(apkId);
+            const reviewCount = getReviewCount(apkId);
+            
+            const displayContainer = document.getElementById('detail-rating-display');
+            const countContainer = document.getElementById('detail-rating-count');
+            
+            if (displayContainer) {
+                displayContainer.innerHTML = generateStarDisplay(avgRating);
+            }
+            if (countContainer) {
+                countContainer.innerText = `(${reviewCount} reviews)`;
+            }
+        }
+
+        // Render reviews in details modal
+        function renderReviews(apkId) {
+            const container = document.getElementById('reviews-container');
+            const countDisplay = document.getElementById('review-count');
+            
+            const reviews = globalReviews.filter(r => r.apkId === apkId);
+            
+            if (countDisplay) {
+                countDisplay.innerText = `${reviews.length} Reviews`;
+            }
+            
+            if (reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-gray-400 text-xs">
+                        <i class="fa-solid fa-comment-slash text-2xl mb-2"></i>
+                        <p>No reviews yet. Be the first to share your thoughts!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Sort reviews by timestamp (newest first)
+            reviews.sort((a, b) => {
+                const tA = a.timestamp ? (a.timestamp.seconds ? a.timestamp.seconds * 1000 : new Date(a.timestamp).getTime()) : 0;
+                const tB = b.timestamp ? (b.timestamp.seconds ? b.timestamp.seconds * 1000 : new Date(b.timestamp).getTime()) : 0;
+                return tB - tA;
+            });
+            
+            reviews.forEach(review => {
+                const card = document.createElement('div');
+                card.className = "review-card bg-white border border-purple-100 rounded-xl p-3.5 space-y-1.5";
+                
+                const date = review.timestamp ? new Date(review.timestamp.seconds ? review.timestamp.seconds * 1000 : review.timestamp).toLocaleDateString() : 'Recent';
+                
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-gray-800">${escapeHTML(review.username || 'Anonymous')}</span>
+                            <div class="star-display text-[10px]">${generateStarDisplay(review.rating || 0)}</div>
+                        </div>
+                        <span class="text-[9px] text-gray-400">${date}</span>
+                    </div>
+                    <p class="text-xs text-gray-600 leading-relaxed">${escapeHTML(review.text || 'No comment provided.')}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Submit a review
+        window.submitReview = async function() {
+            if (!activeReviewApk) {
+                showToast("No app selected for review", "warning");
+                return;
+            }
+            
+            if (!activeUserSession) {
+                showToast("Please sign in to write a review", "warning");
+                return;
+            }
+            
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            const reviewText = document.getElementById('review-text').value.trim();
+            
+            if (!ratingInput) {
+                showToast("Please select a star rating", "warning");
+                return;
+            }
+            
+            if (!reviewText) {
+                showToast("Please write a review comment", "warning");
+                return;
+            }
+            
+            const rating = parseInt(ratingInput.value);
+            
+            const reviewPayload = {
+                apkId: activeReviewApk.id,
+                apkName: activeReviewApk.name,
+                username: activeUserSession.username,
+                rating: rating,
+                text: reviewText,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                if (currentUserId && !currentUserId.startsWith('guest_')) {
+                    const reviewsRef = collection(db, 'artifacts', appId, 'public', 'data', 'reviews');
+                    await addDoc(reviewsRef, reviewPayload);
+                } else {
+                    // Local storage fallback
+                    const reviewId = 'review_' + Date.now();
+                    globalReviews.unshift({ id: reviewId, ...reviewPayload });
+                    localStorage.setItem('nikodroid_reviews_fallback', JSON.stringify(globalReviews));
+                    renderReviews(activeReviewApk.id);
+                    renderRatingDisplay(activeReviewApk.id);
+                    renderApks();
+                }
+                
+                // Clear the form
+                document.querySelector('input[name="rating"]:checked').checked = false;
+                document.getElementById('review-text').value = '';
+                
+                showToast("Review posted successfully!", "success");
+            } catch(e) {
+                console.error(e);
+                showToast("Failed to post review", "error");
+            }
+        };
+
+        // ================= FAVORITES SYSTEM =================
+        
+        // Toggle favorite for current app in details modal
+        window.toggleFavoriteApp = async function() {
+            if (!activeFavoriteApk) {
+                showToast("No app selected", "warning");
+                return;
+            }
+            
+            if (!activeUserSession) {
+                showToast("Please sign in to favorite apps", "warning");
+                openAuthModal();
+                return;
+            }
+            
+            const apkId = activeFavoriteApk.id;
+            const isFavorited = isAppFavorited(apkId);
+            
+            if (isFavorited) {
+                // Remove from favorites
+                const favToRemove = globalFavorites.find(fav => fav.apkId === apkId && fav.userId === activeUserSession.uid);
+                if (favToRemove) {
+                    try {
+                        if (currentUserId && !currentUserId.startsWith('guest_')) {
+                            const favRef = doc(db, 'artifacts', appId, 'public', 'data', 'favorites', favToRemove.id);
+                            await deleteDoc(favRef);
+                        } else {
+                            globalFavorites = globalFavorites.filter(f => f.id !== favToRemove.id);
+                            localStorage.setItem('nikodroid_favorites_fallback', JSON.stringify(globalFavorites));
+                            renderFavorites();
+                            updateFavoriteButtons();
+                        }
+                        showToast("Removed from favorites", "info");
+                    } catch(e) {
+                        console.error(e);
+                        showToast("Failed to remove favorite", "error");
+                    }
+                }
+            } else {
+                // Add to favorites
+                const favPayload = {
+                    apkId: apkId,
+                    apkName: activeFavoriteApk.name,
+                    apkCreator: activeFavoriteApk.creator,
+                    uploaderId: activeFavoriteApk.uploaderId || '',
+                    uploaderName: activeFavoriteApk.uploader || 'Unknown',
+                    userId: activeUserSession.uid,
+                    username: activeUserSession.username,
+                    timestamp: new Date().toISOString()
+                };
+                
+                try {
+                    if (currentUserId && !currentUserId.startsWith('guest_')) {
+                        const favRef = collection(db, 'artifacts', appId, 'public', 'data', 'favorites');
+                        await addDoc(favRef, favPayload);
+                    } else {
+                        const favId = 'fav_' + Date.now();
+                        globalFavorites.push({ id: favId, ...favPayload });
+                        localStorage.setItem('nikodroid_favorites_fallback', JSON.stringify(globalFavorites));
+                        renderFavorites();
+                        updateFavoriteButtons();
+                    }
+                    showToast("Added to favorites!", "success");
+                } catch(e) {
+                    console.error(e);
+                    showToast("Failed to add favorite", "error");
+                }
+            }
+        };
+
+        // Update favorite button in details modal
+        function updateFavoriteButton(apkId) {
+            const btn = document.getElementById('detail-favorite-btn');
+            if (!btn) return;
+            
+            const isFavorited = isAppFavorited(apkId);
+            
+            if (isFavorited) {
+                btn.innerHTML = '<i class="fa-solid fa-heart"></i> <span class="text-[10px]">Favorited</span>';
+                btn.className = "mt-1 text-rose-500 favorite-btn active";
+            } else {
+                btn.innerHTML = '<i class="fa-regular fa-heart"></i> <span class="text-[10px]">Favorite</span>';
+                btn.className = "mt-1 text-rose-400 hover:text-rose-600 transition-colors favorite-btn";
+            }
+        }
+
+        // Update all favorite buttons
+        function updateFavoriteButtons() {
+            // Update the button in details modal if it's open
+            if (activeFavoriteApk) {
+                updateFavoriteButton(activeFavoriteApk.id);
+            }
+        }
+
+        // Render favorites page
+        function renderFavorites() {
+            const container = document.getElementById('favorites-container');
+            if (!container) return;
+            
+            if (globalFavorites.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 border border-dashed border-purple-200 rounded-xl bg-purple-50/20">
+                        <i class="fa-solid fa-heart text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-xs text-gray-500">No favorites yet. Browse the catalog and heart your favorite apps!</p>
+                        <button onclick="showPage('apps')" class="mt-3 bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-all">
+                            Browse Apps
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            `;
+            
+            globalFavorites.forEach(fav => {
+                const app = globalApks.find(apk => apk.id === fav.apkId);
+                if (!app) return;
+                
+                const avgRating = calculateAverageRating(app.id);
+                const ratingStars = generateStarDisplay(avgRating);
+                
+                html += `
+                    <div class="bg-white border border-purple-100 rounded-xl p-4 flex items-start gap-3 hover:shadow-md transition-all cursor-pointer" onclick="openDetailsModal(globalApks.find(a => a.id === '${app.id}'))">
+                        <div class="w-12 h-12 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 shrink-0 overflow-hidden">
+                            ${app.iconData ? `<img src="${app.iconData}" alt="${escapeHTML(app.name)}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box text-lg"></i>`}
+                        </div>
+                        <div class="min-w-0 flex-grow">
+                            <div class="flex items-center gap-1.5">
+                                <h4 class="font-extrabold text-sm text-gray-900 truncate">${escapeHTML(app.name)}</h4>
+                                <span class="text-[9px] bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded font-mono">v${escapeHTML(app.version)}</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 truncate">by ${escapeHTML(app.creator)}</p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <div class="star-display text-[10px]">${ratingStars}</div>
+                                <span class="text-[10px] text-gray-400">(${getReviewCount(app.id)} reviews)</span>
+                            </div>
+                            <p class="text-[10px] text-purple-600 mt-0.5">Favorited from ${escapeHTML(fav.uploaderName || 'Unknown')}</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); removeFavorite('${fav.id}')" class="text-rose-400 hover:text-rose-600">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // Remove favorite
+        window.removeFavorite = async function(favId) {
+            try {
+                if (currentUserId && !currentUserId.startsWith('guest_')) {
+                    const favRef = doc(db, 'artifacts', appId, 'public', 'data', 'favorites', favId);
+                    await deleteDoc(favRef);
+                } else {
+                    globalFavorites = globalFavorites.filter(f => f.id !== favId);
+                    localStorage.setItem('nikodroid_favorites_fallback', JSON.stringify(globalFavorites));
+                    renderFavorites();
+                    updateFavoriteButtons();
+                }
+                showToast("Removed from favorites", "info");
+            } catch(e) {
+                console.error(e);
+                showToast("Failed to remove favorite", "error");
+            }
+        };
+
+        // ================= NOTIFICATIONS SYSTEM =================
+
+        // Toggle notifications dropdown
+        window.toggleNotifications = function() {
+            notificationsOpen = !notificationsOpen;
+            if (notificationsOpen) {
+                notificationsDropdown.classList.remove('hidden');
+            } else {
+                notificationsDropdown.classList.add('hidden');
+            }
+        };
+
+        // Render notifications
+        function renderNotifications() {
+            if (!notificationsList) return;
+            
+            const unreadCount = globalNotifications.filter(n => !n.read).length;
+            
+            // Update badge
+            if (notificationBadge) {
+                if (unreadCount > 0) {
+                    notificationBadge.classList.remove('hidden');
+                    notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                } else {
+                    notificationBadge.classList.add('hidden');
+                }
+            }
+            
+            if (globalNotifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class="text-center py-8 text-xs text-gray-400">
+                        <i class="fa-solid fa-bell-slash text-2xl mb-2 opacity-50"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            notificationsList.innerHTML = '';
+            
+            globalNotifications.forEach(notif => {
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-lg text-xs transition-colors cursor-pointer ${notif.read ? 'bg-gray-50' : 'bg-purple-50 border-l-2 border-purple-500'}`;
+                div.onclick = () => markNotificationRead(notif.id);
+                
+                const date = notif.timestamp ? new Date(notif.timestamp.seconds ? notif.timestamp.seconds * 1000 : notif.timestamp).toLocaleDateString() : 'Recent';
+                
+                div.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-bold text-gray-800 truncate">${escapeHTML(notif.title || 'Notification')}</p>
+                            <p class="text-gray-600 mt-0.5">${escapeHTML(notif.message || '')}</p>
+                            <p class="text-[9px] text-gray-400 mt-1">${date}</p>
+                        </div>
+                        ${!notif.read ? '<span class="w-2 h-2 rounded-full bg-purple-600 shrink-0"></span>' : ''}
+                    </div>
+                `;
+                notificationsList.appendChild(div);
+            });
+        }
+
+        // Mark notification as read
+        async function markNotificationRead(notifId) {
+            try {
+                if (currentUserId && !currentUserId.startsWith('guest_')) {
+                    const notifRef = doc(db, 'artifacts', appId, 'public', 'data', 'notifications', notifId);
+                    await updateDoc(notifRef, { read: true });
+                } else {
+                    const notif = globalNotifications.find(n => n.id === notifId);
+                    if (notif) {
+                        notif.read = true;
+                        localStorage.setItem('nikodroid_notifications_fallback', JSON.stringify(globalNotifications));
+                        renderNotifications();
+                    }
+                }
+            } catch(e) {
+                console.error("Failed to mark notification as read:", e);
+            }
+        }
+
+        // Mark all notifications as read
+        window.markAllNotificationsRead = async function() {
+            try {
+                if (currentUserId && !currentUserId.startsWith('guest_')) {
+                    const unreadNotifs = globalNotifications.filter(n => !n.read);
+                    for (const notif of unreadNotifs) {
+                        const notifRef = doc(db, 'artifacts', appId, 'public', 'data', 'notifications', notif.id);
+                        await updateDoc(notifRef, { read: true });
+                    }
+                } else {
+                    globalNotifications.forEach(n => n.read = true);
+                    localStorage.setItem('nikodroid_notifications_fallback', JSON.stringify(globalNotifications));
+                    renderNotifications();
+                }
+                showToast("All notifications marked as read", "success");
+            } catch(e) {
+                console.error("Failed to mark all notifications as read:", e);
+            }
+        };
+
+        // Compiles lightweight dummy APK matching target values
+        async function compileAndDownloadApk(item) {
+            const btn = document.getElementById('download-trigger-btn');
+            const originalHTML = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Compiling Secure Binary Package...';
+
+            try {
+                // Initialize zip compiler instancing
+                const apkZip = new JSZip();
+
+                // Inject baseline sandbox dummy resource blocks
+                apkZip.file("AndroidManifest.xml", `NikoDroidModsstore Compiled Manifest Info:\nPackage: ${item.packageName}\nName: ${item.name}\nVersion: ${item.version}\nType: ${item.type}\nSignature: Safe Installer`);
+                apkZip.file("classes.dex", `// Byte index map representing: ${item.packageName}`);
+                apkZip.file("res/values/strings.xml", `<resources><string name="app_name">${item.name}</string></resources>`);
+                apkZip.file("META-INF/CERT.SF", `Signature-Version: 1.0\nCreated-By: NikoDroidModsstore\nSHA1-Digest-Manifest: Verified`);
+
+                // Output compilation stream
+                const blob = await apkZip.generateAsync({ type: "blob" });
+                
+                // Mount trigger downloads
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${item.packageName}_v${item.version}.apk`;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clear allocation records
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+
+                showToast("Package compiled and exported!", "success");
+            } catch (err) {
+                console.error("Compilation failure:", err);
+                showToast("Installer generation sequence error", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
+
+        // Format system storage capacities
+        function formatBytes(bytes) {
+            if (!bytes || bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Sanitize inner markup text allocations
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        // Generate notifications
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let themeClass = "bg-[#281440] border-[#502a80] text-purple-200";
+            let icon = "fa-circle-info text-purple-400";
+            
+            if (type === 'success') {
+                themeClass = "bg-emerald-50 border-emerald-300 text-emerald-800";
+                icon = "fa-circle-check text-emerald-600";
+            } else if (type === 'warning') {
+                themeClass = "bg-amber-50 border-amber-300 text-amber-800";
+                icon = "fa-triangle-exclamation text-amber-600";
+            } else if (type === 'error') {
+                themeClass = "bg-rose-50 border-rose-300 text-rose-800";
+                icon = "fa-circle-xmark text-rose-600";
+            }
+
+            toast.className = `${themeClass} border p-4 rounded-xl flex items-center gap-3 shadow-xl transition-all duration-300 max-w-sm pointer-events-auto transform translate-y-4 opacity-0`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icon} text-lg shrink-0"></i>
+                <p class="text-xs font-bold leading-relaxed">${message}</p>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Search trigger actions listeners
+        searchInput.addEventListener('input', renderApks);
+        searchInputMobile.addEventListener('input', renderApks);
+        catalogSearchInput.addEventListener('input', renderApks);
+
+        // Click outside notifications dropdown to close
+        document.addEventListener('click', (e) => {
+            if (notificationsOpen && !e.target.closest('#notifications-btn') && !e.target.closest('#notifications-dropdown')) {
+                notificationsOpen = false;
+                notificationsDropdown.classList.add('hidden');
+            }
+        });
+
+        // Sidebar actions
+        const sidebar = document.getElementById('sidebar');
+        const sidebarContent = document.getElementById('sidebar-content');
+        
+        window.openSidebar = function() {
+            sidebar.classList.remove('hidden');
+            setTimeout(() => {
+                sidebarContent.classList.remove('-translate-x-full');
+            }, 50);
+        };
+
+        window.closeSidebar = function() {
+            sidebarContent.classList.add('-translate-x-full');
+            setTimeout(() => {
+                sidebar.classList.add('hidden');
+            }, 250);
+        };
+
+        document.getElementById('menu-btn').onclick = openSidebar;
+        document.getElementById('close-sidebar-btn').onclick = closeSidebar;
+        sidebar.onclick = (e) => {
+            if (e.target === sidebar) closeSidebar();
+        };
+
+        // Window Init Execution Flow
+        window.onload = async () => {
+            await authenticate();
+            subscribeToRepository();
+        };
+    </script>
+</body>
+</html>
